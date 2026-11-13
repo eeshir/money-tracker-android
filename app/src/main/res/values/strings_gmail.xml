@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gmail_section_title">From Gmail</string>
+    <string name="gmail_section_description">Fetches new bank and card statements from your Gmail (read-only, back to January, only what you don\'t have yet). Each is saved here, and only the latest per card is listed.</string>
+    <string name="gmail_fetch">Fetch new statements from Gmail</string>
+    <string name="gmail_refresh">Fetch again</string>
+    <string name="gmail_none_found">Nothing new to import.</string>
+    <string name="gmail_statement_new">New — tap to import</string>
+    <string name="gmail_statement_locked">New — locked, tap to enter its password</string>
+    <string name="gmail_error_sign_in">Couldn\'t sign in to Gmail.</string>
+    <string name="gmail_error_search">Couldn\'t search Gmail. Check your connection and try again.</string>
+    <string name="gmail_error_download">Couldn\'t download that statement.</string>
+    <string name="gmail_error_expired">Gmail access expired. Tap fetch to sign in again.</string>
+
+    <string name="gmail_auto_title">Fetch and import every day</string>
+    <string name="gmail_auto_description">Checks Gmail once a day, imports each card\'s newest statement and updates its limit and balance. You\'re notified when it imports something, or when Google needs you to sign in again.</string>
+
+    <string name="gmail_notif_channel_name">Statement sync</string>
+    <string name="gmail_notif_channel_description">Daily Gmail statement fetch: what was imported, and when Google needs you to sign in again</string>
+    <string name="gmail_notif_blocked_title">Gmail needs your approval</string>
+    <string name="gmail_notif_blocked_text">Tap to sign in again so new statements can be fetched.</string>
+    <string name="gmail_notif_done_title">Statements updated</string>
+    <plurals name="gmail_notif_imported">
+        <item quantity="one">%1$d statement imported</item>
+        <item quantity="other">%1$d statements imported</item>
+    </plurals>
+    <plurals name="gmail_notif_need_password">
+        <item quantity="one">%1$d needs a password</item>
+        <item quantity="other">%1$d need a password</item>
+    </plurals>
+    <string name="gmail_backfill">Fetch older statements since January</string>
+    <string name="gmail_sync_now">Fetch and import everything now</string>
+    <string name="gmail_sync_nothing_new">Nothing new to import.</string>
+    <string name="gmail_sync_failed_count">%1$d could not be read.</string>
+</resources>

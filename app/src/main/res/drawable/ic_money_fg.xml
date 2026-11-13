@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release launcher foreground: gold coin with rising bars. Kept inside the 66dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFC93C"
+        android:pathData="M27,54a27,27 0 1,0 54,0a27,27 0 1,0 -54,0z" />
+    <path
+        android:fillColor="#FFE08A"
+        android:strokeColor="#E39B00"
+        android:strokeWidth="2.5"
+        android:pathData="M32,54a22,22 0 1,0 44,0a22,22 0 1,0 -44,0z" />
+    <path android:fillColor="#0B5D4B" android:pathData="M42,66h6v-8h-6z" />
+    <path android:fillColor="#0B5D4B" android:pathData="M51,66h6v-15h-6z" />
+    <path android:fillColor="#0B5D4B" android:pathData="M60,66h6v-23h-6z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M78,26l2,5l5,2l-5,2l-2,5l-2,-5l-5,-2l5,-2z" />
+</vector>

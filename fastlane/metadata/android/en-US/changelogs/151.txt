@@ -1,0 +1,3 @@
+• Refunds: link a refund to the expenses it pays back, from the refund or from the expense. Net cost shows in the expense's own month; the unlinked part is a floater (Home card, hides when none).
+• Transactions: card purchases now count in Expenses and Net for the month they were made (when "count credit card as expense" is on, the default).
+• List rows say "₹X paid back" / "Floater ₹X".

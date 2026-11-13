@@ -1,0 +1,2 @@
+• Card rewards: set a different reward rate on a single purchase (e.g. 2% on an Amazon gift card) from its detail screen.
+• Gmail fetch text now says back to January.

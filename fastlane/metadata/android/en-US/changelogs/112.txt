@@ -1,0 +1,2 @@
+• Card rewards: Edit reward rates now starts pre-filled for HSBC Live+, HDFC MoneyBack+ and Amazon Pay ICICI cards.
+• Check the rates against your card terms, then Save.

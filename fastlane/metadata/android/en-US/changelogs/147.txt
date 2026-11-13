@@ -1,0 +1,2 @@
+• Import several PDF statements at once: each one goes through its own password, review and result, with "Statement 2 of 3" and a Next / Skip button.
+• The import screen now lists every bank, card and app whose PDFs are read.

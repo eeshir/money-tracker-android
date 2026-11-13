@@ -1,0 +1,1 @@
+• Card rewards finds card purchases that were read twice (once from SMS, once from a statement) and can merge them, keeping the SMS copy.

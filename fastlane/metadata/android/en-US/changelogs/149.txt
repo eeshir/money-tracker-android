@@ -1,0 +1,3 @@
+• Analytics: a merchant renamed to another shop's name is now counted with it (e.g. a card UPI id and the bank's name for the same dairy).
+• Tata Neu Plus: 7% via Neu app (set on the purchase), wider partner list; HDFC cards no longer default to MoneyBack+.
+• HDFC card UPI alerts read the right reference number.

@@ -1,0 +1,1 @@
+• Card rewards: tap a Statement check row to see its cycle dates and the purchases counted, grouped by merchant, split by SMS vs statement.

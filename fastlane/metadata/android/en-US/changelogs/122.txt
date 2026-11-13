@@ -1,0 +1,2 @@
+• Gmail statement fetch now goes back to January (up to 400 emails), reading each statement's reward total before old ones are cleared.
+• Card rewards: points are valued automatically for saved cards; HSBC suggestion now counts DMart (Avenue Supermarts); HDFC suggestion no longer gives Myntra 5%.

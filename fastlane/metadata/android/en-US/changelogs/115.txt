@@ -1,0 +1,3 @@
+• Card rewards: refunds now take back the reward they earned.
+• Transaction details show the reward earned (or taken back).
+• Fix: the per-card Transactions list now opens (By merchant / Transactions tabs).

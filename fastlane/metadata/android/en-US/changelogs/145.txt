@@ -1,0 +1,1 @@
+• Card rewards: totals are kept per currency, statement re-reads no longer overlap, and cleanups.

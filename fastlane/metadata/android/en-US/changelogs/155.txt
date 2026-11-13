@@ -1,0 +1,1 @@
+• The app id is now com.moneytracker.app (was com.pennywiseai.tracker). It installs as a separate app: move your data with Export Data and Import Data.

@@ -1,0 +1,1 @@
+• Share cards now say "MONEY TRACKER". Docs: new setup guide (build, signing, Gmail with your own Google client, backup and restore), NOTICE, and a rewritten README and agent guide.

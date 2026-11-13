@@ -1,0 +1,2 @@
+• Card rewards has a new, simpler screen: one total, card and period filters, a tile per card, and your purchases with the reward each earned (sort by newest, highest reward or merchant; show only purchases that earn).
+• The detailed screen is still there: tap Advanced at the top.

@@ -1,0 +1,5 @@
+• Home highlights credit-card payments that are due, read from your card statements
+• New Splits tab: one total per person across all split bills, one payment request for the sum, and Mark settled or Delete
+• Credit-card purchases can now be split, and recent split contacts are remembered
+• Fixed the app lock asking for biometrics at random
+• Removed the Discord and Rate rows from the menu; the app is English only

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="refund_link_title">Link refund to expenses</string>
+    <string name="refund_link_loading">Loading…</string>
+    <string name="refund_link_not_saved">Save this transaction as a Refund first, then link it to expenses.</string>
+    <string name="refund_link_ok">OK</string>
+    <string name="refund_link_summary">This refund is %1$s. Put it on the expenses it pays back.</string>
+    <string name="refund_link_floater_line">Linked %1$s · Floater %2$s</string>
+    <string name="refund_link_floater_hint">The floater counts for nothing until you link it to an expense.</string>
+    <string name="refund_link_over_refund">You linked more than the refund.</string>
+    <string name="refund_link_cut_notice">Some amounts were cut to fit what the expenses still had room for.</string>
+    <string name="refund_link_search">Search expenses</string>
+    <string name="refund_link_none">No expenses to link in this currency.</string>
+    <string name="refund_link_already">%1$s already paid back</string>
+    <string name="refund_link_amount">Amount</string>
+    <string name="refund_link_room">Only %1$s left</string>
+    <string name="refund_link_fill">Fill</string>
+    <string name="refund_link_clear">Clear</string>
+    <string name="refund_link_save">Save links</string>
+    <string name="refund_link_problem_cut">Cut to fit.</string>
+    <string name="refund_link_problem_other">Could not link that expense.</string>
+    <string name="refund_section_title">Paid back expenses</string>
+    <string name="refund_section_button">Link to expenses</string>
+    <string name="refund_section_edit">Edit links</string>
+    <string name="refund_section_hint">Link this refund to the expenses it pays back, or pick a category above to take it off a whole category. Linked amounts are removed from those expenses in their own month.</string>
+    <string name="refund_section_status">Linked %1$s · Floater %2$s</string>
+    <string name="refund_detail_paid_back">Paid back</string>
+    <string name="refund_detail_paid_back_value">%1$s of %2$s</string>
+    <string name="txn_item_tag_paid_back">%1$s paid back</string>
+    <string name="txn_item_tag_refund_linked">Refund linked</string>
+    <string name="txn_item_tag_refund_floater">Floater %1$s</string>
+    <string name="refund_floater_title">Refunds to link</string>
+    <plurals name="refund_floater_count">
+        <item quantity="one">%d refund has money not linked to an expense yet</item>
+        <item quantity="other">%d refunds have money not linked to an expense yet</item>
+    </plurals>
+    <string name="refund_floater_more">+%d more</string>
+    <string name="expense_link_button">Link a refund</string>
+    <string name="expense_link_button_edit">Edit linked refunds</string>
+    <string name="expense_link_title">Link refunds to this expense</string>
+    <string name="expense_link_summary">This costs %1$s. Choose which refunds paid it back.</string>
+    <string name="expense_link_status">Refunded %1$s · Still to pay back %2$s</string>
+    <string name="expense_link_which_part">Which part?</string>
+    <string name="expense_link_over_cost">That is more than this costs.</string>
+    <string name="expense_link_none">No refunds have money left to link in this currency.</string>
+    <string name="expense_link_available">%1$s available</string>
+    <string name="expense_link_unavailable">This transaction cannot be paid back by refunds.</string>
+</resources>

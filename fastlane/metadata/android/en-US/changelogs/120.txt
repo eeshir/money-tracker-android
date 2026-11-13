@@ -1,0 +1,1 @@
+• Card rewards: monthly caps now follow each card's statement cycle instead of the calendar month.
