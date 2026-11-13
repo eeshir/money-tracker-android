@@ -125,7 +125,6 @@ open class UserPreferencesRepository @Inject constructor(
 
         // F-Droid support nudge — epoch-day of the last contextual "Support
         // development" prompt, so it stays frequency-capped.
-        val SUPPORT_NUDGE_LAST_SHOWN_DAY = longPreferencesKey("support_nudge_last_shown_epoch_day")
 
         // Pro tier — statement-import monthly quota tracking.
         val LAST_STATEMENT_IMPORT_AT = longPreferencesKey("last_statement_import_at")
@@ -205,7 +204,6 @@ open class UserPreferencesRepository @Inject constructor(
 
     private companion object {
         // F-Droid support nudge: at most one contextual prompt per this many days.
-        const val SUPPORT_NUDGE_COOLDOWN_DAYS = 30L
     }
 
     val userPreferences: Flow<UserPreferences> = context.dataStore.data
@@ -499,7 +497,7 @@ open class UserPreferencesRepository @Inject constructor(
     /**
      * Records [month] as handled so the Home banner doesn't come back until the next one.
      *
-     * Deliberately not the claim-on-decide shape used by [claimSupportNudge]: that nudge
+     * Deliberately not a claim-on-decide shape: a contextual nudge
      * is contextual and fires once at a moment, whereas this banner should persist across
      * launches until the user actually engages with it. Marking on dismissal rather than
      * on display means an app kill doesn't silently burn the month's only prompt.
@@ -740,33 +738,6 @@ open class UserPreferencesRepository @Inject constructor(
                     ?: p.remove(PreferencesKeys.LICENSE_PRODUCT_NAME)
             }
         }
-    }
-
-    /** Epoch-day the contextual F-Droid support nudge was last shown (0 = never). */
-    val supportNudgeLastShownDay: Flow<Long> = context.dataStore.data
-        .map { it[PreferencesKeys.SUPPORT_NUDGE_LAST_SHOWN_DAY] ?: 0L }
-
-    /**
-     * Atomically decides whether to show the contextual F-Droid "Support
-     * development" nudge and, if so, records it as shown before returning — so
-     * back-to-back power-feature moments can't show it twice. Returns true at
-     * most once per [SUPPORT_NUDGE_COOLDOWN_DAYS] days, across every trigger
-     * site (a single global timestamp). Callers gate on the F-Droid flavor.
-     */
-    suspend fun claimSupportNudge(): Boolean {
-        val today = LocalDate.now().toEpochDay()
-        // Check-and-set inside a single edit{} so the read and write are one
-        // atomic transaction — DataStore serializes edit blocks, so two
-        // concurrent claims can't both observe the stale timestamp and win.
-        var claimed = false
-        context.dataStore.edit { prefs ->
-            val last = prefs[PreferencesKeys.SUPPORT_NUDGE_LAST_SHOWN_DAY] ?: 0L
-            if (today - last >= SUPPORT_NUDGE_COOLDOWN_DAYS) {
-                prefs[PreferencesKeys.SUPPORT_NUDGE_LAST_SHOWN_DAY] = today
-                claimed = true
-            }
-        }
-        return claimed
     }
 
     /**

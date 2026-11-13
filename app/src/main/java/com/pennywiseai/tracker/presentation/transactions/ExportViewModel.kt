@@ -33,6 +33,4 @@ class ExportViewModel @Inject constructor(
         return csvExporter.exportTransactions(transactions, fileName)
     }
 
-    /** @see UserPreferencesRepository.claimSupportNudge — global, frequency-capped. */
-    suspend fun claimSupportNudge(): Boolean = userPreferencesRepository.claimSupportNudge()
 }

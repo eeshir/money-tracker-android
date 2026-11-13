@@ -234,9 +234,6 @@ fun UnrecognizedSmsScreen(
                             onAddSuggestion = {
                                 suggestions[message.id]?.let { onAddSuggestion(it.draft()) }
                             },
-                            onReport = {
-                                viewModel.reportMessage(message)
-                            },
                             onDelete = {
                                 selectedMessage = message
                                 showDeleteConfirmation = true
@@ -292,7 +289,6 @@ private fun UnrecognizedSmsItem(
     message: UnrecognizedSmsEntity,
     suggestion: ParsedTransaction?,
     onAddSuggestion: (ParsedTransaction) -> Unit,
-    onReport: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -368,19 +364,6 @@ private fun UnrecognizedSmsItem(
                         Text(stringResource(R.string.unrecognized_delete))
                     }
 
-                    Spacer(modifier = Modifier.width(Spacing.sm))
-
-                    FilledTonalButton(
-                        onClick = onReport
-                    ) {
-                        Icon(
-                            Icons.Default.BugReport,
-                            contentDescription = stringResource(R.string.unrecognized_report),
-                            modifier = Modifier.size(Dimensions.Icon.small)
-                        )
-                        Spacer(modifier = Modifier.width(Spacing.xs))
-                        Text(stringResource(R.string.unrecognized_report))
-                    }
                 } else {
                     TextButton(
                         onClick = onDelete,

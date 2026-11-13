@@ -229,13 +229,9 @@ storage; saved statements and backups are encrypted (see below). Network use is 
    open the currency picker. No personal data is sent.
 3. **Google Play services** *(Play-flavor build)* — Google's own SDKs for updates and
    reviews; they do their own connectivity to Google.
-4. **Report a parsing problem** — only when you tap it. It opens the *original project's*
-   web page (`pennywise.zynth.dev`) in your browser with the SMS text and sender you
-   picked in the link, plus an on-device-encrypted device identifier. That site is run
-   by someone else, not by this project: don't use the action on a message you
-   wouldn't want them to see. (Removing it is a good first change if you'd rather it
-   not exist; see `SmsReportUrlBuilder.kt`.)
-5. **Links** open your browser.
+4. **Links** (user guide, issue tracker) open your browser. There is no in-app way to send an
+   SMS anywhere: to report a parsing problem, open an issue with an **invented** example of
+   the message (never a real one).
 
 Everything else stays on your phone. Backups never leave unless you share or save them,
 and are unreadable without your passphrase. The database file itself is not separately

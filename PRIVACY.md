@@ -127,7 +127,7 @@ Any changes to this privacy policy will be:
 
 For privacy concerns or questions:
 - Open an issue on [GitHub](https://github.com/sarim2000/pennywiseai-tracker/issues)
-- Join our [Discord community](https://discord.gg/H3xWeMWjKQ)
+- Open an issue on [GitHub](https://github.com/eeshir/money-tracker-android/issues)
 
 ## Summary
 

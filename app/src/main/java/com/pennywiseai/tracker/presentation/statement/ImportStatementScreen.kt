@@ -45,8 +45,6 @@ import com.pennywiseai.tracker.data.statement.StatementBalanceCheck
 import com.pennywiseai.tracker.data.statement.StatementColumnMapping
 import com.pennywiseai.tracker.data.statement.StatementTableParser
 import com.pennywiseai.tracker.ui.components.CustomTitleTopAppBar
-import com.pennywiseai.tracker.ui.components.SupportDevelopmentDialog
-import com.pennywiseai.tracker.ui.components.SupportNudgeCard
 import com.pennywiseai.tracker.ui.components.cards.PennyWiseCardV2
 import com.pennywiseai.tracker.ui.theme.Dimensions
 import com.pennywiseai.tracker.ui.theme.PennyWiseText
@@ -82,9 +80,7 @@ fun ImportStatementScreen(
     val savedStatements by viewModel.savedStatements.collectAsStateWithLifecycle()
     val hasSavedPasswords by viewModel.hasSavedPasswords.collectAsStateWithLifecycle()
     val canImportThisMonth by viewModel.canImportThisMonth.collectAsStateWithLifecycle()
-    val showSupportNudge by viewModel.showSupportNudge.collectAsStateWithLifecycle()
     var showUpgradeSheet by remember { mutableStateOf(false) }
-    var showSupportDialog by remember { mutableStateOf(false) }
 
     val batch by viewModel.batch.collectAsStateWithLifecycle()
     // Several statements can be picked at once; they're imported one after another.
@@ -252,11 +248,6 @@ fun ImportStatementScreen(
                     balanceCheck = state.balanceCheck,
                     balanceApplied = state.balanceApplied,
                     onApplyBalance = viewModel::applyStatementBalance,
-                    showSupportNudge = showSupportNudge,
-                    onSupportClick = {
-                        showSupportDialog = true
-                        viewModel.dismissSupportNudge()
-                    },
                     // In a batch this moves on to the next picked statement.
                     onImportAnother = viewModel::nextStatement,
                     nextLabel = nextLabel,
@@ -286,9 +277,6 @@ fun ImportStatementScreen(
         )
     }
 
-    if (showSupportDialog) {
-        SupportDevelopmentDialog(onDismiss = { showSupportDialog = false })
-    }
 }
 
 @Composable
@@ -990,8 +978,6 @@ private fun SuccessContent(
     balanceCheck: StatementBalanceCheck?,
     balanceApplied: Boolean,
     onApplyBalance: () -> Unit,
-    showSupportNudge: Boolean = false,
-    onSupportClick: () -> Unit = {},
     onImportAnother: () -> Unit,
     onDone: () -> Unit,
     /** Set in a batch with statements left: the main button moves on to the next. */
@@ -1083,10 +1069,6 @@ private fun SuccessContent(
 
     balanceCheck?.let { BalanceCheckCard(it, balanceApplied, onApplyBalance) }
 
-    if (showSupportNudge) {
-        Spacer(modifier = Modifier.height(Spacing.md))
-        SupportNudgeCard(onClick = onSupportClick)
-    }
 
     Spacer(modifier = Modifier.height(Spacing.lg))
 

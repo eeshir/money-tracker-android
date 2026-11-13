@@ -51,7 +51,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pennywiseai.tracker.core.Constants
 import com.pennywiseai.tracker.ui.UiText
 import com.pennywiseai.tracker.ui.components.CustomTitleTopAppBar
-import com.pennywiseai.tracker.ui.components.SupportDevelopmentDialog
 import com.pennywiseai.tracker.ui.components.cards.GroupedColumn
 import com.pennywiseai.tracker.domain.loan.UpiRequest
 import com.pennywiseai.tracker.presentation.split.UpiIdDialog
@@ -179,10 +178,8 @@ fun SettingsScreen(
     }
     val requestFolderPicker by settingsViewModel.requestFolderPicker.collectAsStateWithLifecycle()
     var showUpgradeSheet by remember { mutableStateOf(false) }
-    var showSupportDialog by remember { mutableStateOf(false) }
     // F-Droid builds have no Play billing, so they show a "Support development"
     // tip jar instead of the (un-buyable) Pro upsell. Play builds keep Pro.
-    val isFdroidBuild = com.pennywiseai.tracker.BuildConfig.IS_FDROID_BUILD
     // Launches the runtime permission request. If granted, we flip the
     // preference on; if denied, leave the switch off so the user can try
     // again without us silently turning the feature on later.
@@ -294,26 +291,6 @@ fun SettingsScreen(
                 .padding(Dimensions.Padding.content),
             verticalArrangement = Arrangement.spacedBy(Spacing.sm)
         ) {
-            // ── Support development (F-Droid builds only) ──
-            // Top of Settings on purpose: highest-discoverability slot.
-            // F-Droid builds have no Play billing (everything is already
-            // unlocked), so instead of an un-buyable Pro upsell they get a
-            // "Support development" tip jar. Play builds keep the Pro upgrade.
-            if (isFdroidBuild) {
-                SectionHeaderV2(title = stringResource(R.string.support_title))
-                SettingsGroup {
-                    SettingsNavItem(
-                        icon = Icons.Default.Favorite,
-                        iconBgColor = yellow_light,
-                        iconTint = yellow_dark,
-                        title = stringResource(R.string.support_title),
-                        subtitle = stringResource(R.string.support_subtitle),
-                        onClick = { showSupportDialog = true },
-                        position = ListItemPosition.Single,
-                    )
-                }
-            }
-
             // ── Personalization ──
             SectionHeaderV2(title = stringResource(R.string.settings_personalization_section))
             SettingsGroup {
@@ -919,7 +896,7 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_report_issue_title),
                     subtitle = stringResource(R.string.settings_report_issue_subtitle),
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/sarim2000/pennywiseai-tracker/issues/new/choose"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.Links.ISSUES_URL))
                         context.startActivity(intent)
                     },
                     position = ListItemPosition.Bottom,
@@ -1559,9 +1536,6 @@ fun SettingsScreen(
         )
     }
 
-    if (showSupportDialog) {
-        SupportDevelopmentDialog(onDismiss = { showSupportDialog = false })
-    }
 }
 
 // ── Reusable Settings Components ──

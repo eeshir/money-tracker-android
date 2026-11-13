@@ -334,21 +334,6 @@ fun TransactionDetailScreen(
                                         transaction?.let { onDuplicateTransaction(it.id) }
                                     }
                                 )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.txn_detail_menu_report_issue)) },
-                                    leadingIcon = {
-                                        Icon(Icons.Default.BugReport, contentDescription = null)
-                                    },
-                                    onClick = {
-                                        showActionsMenu = false
-                                        val reportUrl = viewModel.getReportUrl()
-                                        runCatching {
-                                            context.startActivity(
-                                                Intent(Intent.ACTION_VIEW, Uri.parse(reportUrl))
-                                            )
-                                        }
-                                    }
-                                )
                                 HorizontalDivider()
                                 DropdownMenuItem(
                                     text = {
