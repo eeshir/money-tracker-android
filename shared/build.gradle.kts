@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.pennywiseai.shared"
+        namespace = "com.moneytracker.shared"
         compileSdk = 36
         minSdk = 26
         withHostTest {}

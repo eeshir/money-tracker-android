@@ -1,0 +1,331 @@
+package com.moneytracker.app.utils
+
+import com.moneytracker.app.data.database.dao.BalanceSourceRow
+import com.moneytracker.app.data.database.entity.AccountBalanceEntity
+import com.moneytracker.app.data.database.entity.TransactionType
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
+import java.math.BigDecimal
+import java.time.LocalDateTime
+
+class BalanceCalculatorTest {
+
+    @Test
+    fun `preservedAccountType carries over the existing account's type`() {
+        val existing = AccountBalanceEntity(
+            bankName = "HDFC",
+            accountLast4 = "1234",
+            balance = BigDecimal("1000.00"),
+            timestamp = LocalDateTime.now(),
+            accountType = "CURRENT"
+        )
+        assertEquals("CURRENT", BalanceCalculator.preservedAccountType(existing))
+    }
+
+    @Test
+    fun `preservedAccountType is null when there is no existing account`() {
+        assertNull(BalanceCalculator.preservedAccountType(null))
+    }
+
+    @Test
+    fun `preservedAccountType is null when the existing account never had a type set`() {
+        val existing = AccountBalanceEntity(
+            bankName = "SBI",
+            accountLast4 = "9999",
+            balance = BigDecimal("2000.00"),
+            timestamp = LocalDateTime.now(),
+            accountType = null
+        )
+        assertNull(BalanceCalculator.preservedAccountType(existing))
+    }
+
+    @Test
+    fun `explicit balance takes priority over all logic`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = BigDecimal("100.00"),
+            isCreditCard = false,
+            transactionType = TransactionType.INCOME,
+            transactionAmount = BigDecimal("50.00"),
+            currentBalance = BigDecimal("500.00")
+        )
+        assertEquals(BigDecimal("100.00"), newBalance)
+    }
+
+    @Test
+    fun `credit card income transaction subtracts from outstanding balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = true,
+            transactionType = TransactionType.INCOME,
+            transactionAmount = BigDecimal("30.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("70.00"), newBalance)
+    }
+
+    @Test
+    fun `credit card income transaction supports negative outstanding balance representing overpayment`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = true,
+            transactionType = TransactionType.INCOME,
+            transactionAmount = BigDecimal("150.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("-50.00"), newBalance)
+    }
+
+    @Test
+    fun `credit card credit purchase adds to outstanding balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = true,
+            transactionType = TransactionType.CREDIT,
+            transactionAmount = BigDecimal("50.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("150.00"), newBalance)
+    }
+
+    @Test
+    fun `debit income adds to standard account balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = false,
+            transactionType = TransactionType.INCOME,
+            transactionAmount = BigDecimal("50.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("150.00"), newBalance)
+    }
+
+    @Test
+    fun `debit expense subtracts from standard account balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = false,
+            transactionType = TransactionType.EXPENSE,
+            transactionAmount = BigDecimal("40.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("60.00"), newBalance)
+    }
+
+    @Test
+    fun `debit investment subtracts from standard account balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = false,
+            transactionType = TransactionType.INVESTMENT,
+            transactionAmount = BigDecimal("40.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("60.00"), newBalance)
+    }
+
+    @Test
+    fun `debit transfer preserves standard account balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = false,
+            transactionType = TransactionType.TRANSFER,
+            transactionAmount = BigDecimal("100.00"),
+            currentBalance = BigDecimal("500.00")
+        )
+        assertEquals(BigDecimal("500.00"), newBalance)
+    }
+
+    @Test
+    fun `credit card with null current balance defaults to zero`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = true,
+            transactionType = TransactionType.CREDIT,
+            transactionAmount = BigDecimal("50.00"),
+            currentBalance = null
+        )
+        assertEquals(BigDecimal("50.00"), newBalance)
+    }
+
+    @Test
+    fun `credit card transfer preserves outstanding balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = true,
+            transactionType = TransactionType.TRANSFER,
+            transactionAmount = BigDecimal("100.00"),
+            currentBalance = BigDecimal("500.00")
+        )
+        assertEquals(BigDecimal("500.00"), newBalance)
+    }
+
+    @Test
+    fun `credit card expense adds to outstanding balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = true,
+            transactionType = TransactionType.EXPENSE,
+            transactionAmount = BigDecimal("75.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("175.00"), newBalance)
+    }
+
+    @Test
+    fun `credit card investment adds to outstanding balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = true,
+            transactionType = TransactionType.INVESTMENT,
+            transactionAmount = BigDecimal("150.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("250.00"), newBalance)
+    }
+
+    @Test
+    fun `debit expense supports negative balance representing overdraft`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = false,
+            transactionType = TransactionType.EXPENSE,
+            transactionAmount = BigDecimal("150.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("-50.00"), newBalance)
+    }
+
+    @Test
+    fun `debit investment supports negative balance representing overdraft`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = false,
+            transactionType = TransactionType.INVESTMENT,
+            transactionAmount = BigDecimal("150.00"),
+            currentBalance = BigDecimal("100.00")
+        )
+        assertEquals(BigDecimal("-50.00"), newBalance)
+    }
+
+    @Test
+    fun `debit credit preserves standard account balance`() {
+        val newBalance = BalanceCalculator.calculateNewBalance(
+            explicitBalance = null,
+            isCreditCard = false,
+            transactionType = TransactionType.CREDIT,
+            transactionAmount = BigDecimal("100.00"),
+            currentBalance = BigDecimal("500.00")
+        )
+        assertEquals(BigDecimal("500.00"), newBalance)
+    }
+
+    // ── signedBalanceEffect — the shared sign convention for add/edit/delete ──
+
+    @Test
+    fun `signed effect on debit account follows money direction`() {
+        val a = BigDecimal("100.00")
+        assertEquals(a, BalanceCalculator.signedBalanceEffect(false, TransactionType.INCOME, a))
+        assertEquals(a.negate(), BalanceCalculator.signedBalanceEffect(false, TransactionType.EXPENSE, a))
+        assertEquals(a.negate(), BalanceCalculator.signedBalanceEffect(false, TransactionType.INVESTMENT, a))
+        assertEquals(a.negate(), BalanceCalculator.signedBalanceEffect(false, TransactionType.CREDIT, a))
+    }
+
+    @Test
+    fun `signed effect on credit card tracks outstanding owed`() {
+        val a = BigDecimal("100.00")
+        // Spending raises outstanding; income (refund/repayment) lowers it.
+        assertEquals(a, BalanceCalculator.signedBalanceEffect(true, TransactionType.EXPENSE, a))
+        assertEquals(a, BalanceCalculator.signedBalanceEffect(true, TransactionType.CREDIT, a))
+        assertEquals(a, BalanceCalculator.signedBalanceEffect(true, TransactionType.INVESTMENT, a))
+        assertEquals(a.negate(), BalanceCalculator.signedBalanceEffect(true, TransactionType.INCOME, a))
+    }
+
+    @Test
+    fun `transfers have no single-account effect - their legs carry it`() {
+        val a = BigDecimal("100.00")
+        assertEquals(0, BalanceCalculator.signedBalanceEffect(false, TransactionType.TRANSFER, a).signum())
+        assertEquals(0, BalanceCalculator.signedBalanceEffect(true, TransactionType.TRANSFER, a).signum())
+    }
+
+    @Test
+    fun `edit net effect - expense to income on a debit account swings by twice the amount`() {
+        val a = BigDecimal("100.00")
+        val net = BalanceCalculator.signedBalanceEffect(false, TransactionType.INCOME, a) -
+            BalanceCalculator.signedBalanceEffect(false, TransactionType.EXPENSE, a)
+        assertEquals(BigDecimal("200.00"), net)
+    }
+
+    // ── transferLegEffect — credit-card-aware transfer legs ──
+
+    @Test
+    fun `transfer leg on debit account moves with the money`() {
+        val a = BigDecimal("100.00")
+        assertEquals(a, BalanceCalculator.transferLegEffect(false, incoming = true, a))
+        assertEquals(a.negate(), BalanceCalculator.transferLegEffect(false, incoming = false, a))
+    }
+
+    @Test
+    fun `transfer leg on credit card flips sign - a payment reduces outstanding`() {
+        val a = BigDecimal("100.00")
+        assertEquals(a.negate(), BalanceCalculator.transferLegEffect(true, incoming = true, a))
+        assertEquals(a, BalanceCalculator.transferLegEffect(true, incoming = false, a))
+    }
+
+    @Test
+    fun `unanchoredAccounts flags only accounts whose rows are all transaction deltas`() {
+        fun row(acct: String, source: String?, stated: Boolean?) = BalanceSourceRow("Bank", acct, source, stated)
+        val rows = listOf(
+            // Every SMS stated no balance: running total from 0 (#982).
+            row("1111", "TRANSACTION", false),
+            // One SMS stated the balance.
+            row("2222", "TRANSACTION", false), row("2222", "TRANSACTION", true),
+            // The user set it via Update Balance.
+            row("3333", "TRANSACTION", false), row("3333", "MANUAL", null),
+            // A balance-notification SMS.
+            row("4444", "TRANSACTION", false), row("4444", null, null),
+            // A TRANSACTION row whose transaction is gone: ambiguous, not flagged.
+            row("5555", "TRANSACTION", null),
+            // A manual account.
+            row("6666", "OPENING", null), row("6666", "MANUAL", null)
+        )
+        assertEquals(setOf("Bank" to "1111"), BalanceCalculator.unanchoredAccounts(rows))
+    }
+
+    private fun card(available: String?, explicit: String?, running: String, existing: String? = null) =
+        BalanceCalculator.cardFiguresAfter(
+            availableLimit = available?.let(::BigDecimal),
+            explicitOutstanding = explicit?.let(::BigDecimal),
+            runningOutstanding = BigDecimal(running),
+            existingLimit = existing?.let(::BigDecimal)
+        )
+
+    @Test
+    fun `card SMS with available and outstanding gives the exact limit`() {
+        val figures = card(available = "61000.00", explicit = "9000.00", running = "30000.00", existing = "80000.00")
+        assertEquals(BigDecimal("70000.00"), figures.creditLimit)
+        assertEquals(BigDecimal("9000.00"), figures.outstanding)
+    }
+
+    @Test
+    fun `a stored limit is kept and the outstanding comes from it`() {
+        // The running total drifted to 7,000; the stored limit says 4,400 is owed.
+        val figures = card(available = "85600.00", explicit = null, running = "7000.00", existing = "90000.00")
+        assertEquals(BigDecimal("90000.00"), figures.creditLimit)
+        assertEquals(BigDecimal("4400.00"), figures.outstanding)
+    }
+
+    @Test
+    fun `available above the stored limit means the limit was raised`() {
+        val figures = card(available = "85600.00", explicit = null, running = "900.00", existing = "70000.00")
+        assertEquals(BigDecimal("86500.00"), figures.creditLimit)
+        assertEquals(BigDecimal("900.00"), figures.outstanding)
+    }
+
+    @Test
+    fun `no available limit keeps the running outstanding and the limit`() {
+        val figures = card(available = null, explicit = null, running = "2100.00", existing = "45000.00")
+        assertEquals(BigDecimal("45000.00"), figures.creditLimit)
+        assertEquals(BigDecimal("2100.00"), figures.outstanding)
+    }
+}

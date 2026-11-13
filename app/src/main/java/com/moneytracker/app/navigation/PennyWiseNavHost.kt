@@ -1,0 +1,600 @@
+package com.moneytracker.app.navigation
+
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.moneytracker.app.ui.LocalNavAnimatedVisibilityScope
+import com.moneytracker.app.ui.LocalSharedTransitionScope
+import com.moneytracker.app.ui.MainScreen
+import com.moneytracker.app.ui.viewmodel.ThemeViewModel
+
+/**
+ * Safe version of popBackStack that prevents rapid back presses from causing
+ * screen overlap. Only pops if the current entry is fully RESUMED.
+ */
+fun NavHostController.safePopBackStack() {
+    if (currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+        popBackStack()
+    }
+}
+
+@Composable
+fun PennyWiseNavHost(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    themeViewModel: ThemeViewModel = hiltViewModel(),
+    startDestination: Any = Home,
+    onEditComplete: () -> Unit = {}
+) {
+    // Use a stable start destination
+    val stableStartDestination = remember { startDestination }
+
+    SharedTransitionLayout {
+    CompositionLocalProvider(LocalSharedTransitionScope provides this@SharedTransitionLayout) {
+    NavHost(
+        navController = navController,
+        startDestination = stableStartDestination,
+        modifier = modifier.background(MaterialTheme.colorScheme.background),
+        enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+        exitTransition = { fadeOut(tween(200)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+    ) {
+        composable<AppLock>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.ui.screens.AppLockScreen(
+                onUnlocked = {
+                    navController.navigate(Home) {
+                        launchSingleTop = true
+                        popUpTo(AppLock) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable<OnBoarding>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.ui.screens.onboarding.OnBoardingScreen(
+                onOnboardingComplete = {
+                    navController.navigate(Home) {
+                        launchSingleTop = true
+                        popUpTo(OnBoarding) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable<Home>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+            popEnterTransition = { fadeIn() },
+            popExitTransition = { fadeOut() }
+        ) {
+            CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this@composable) {
+                MainScreen(
+                    rootNavController = navController
+                )
+            }
+        }
+
+        composable<Settings>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.ui.screens.settings.SettingsScreen(
+                themeViewModel = themeViewModel,
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onNavigateToCategories = {
+                    navController.navigate(Categories) { launchSingleTop = true }
+                },
+                onNavigateToUnrecognizedSms = {
+                    navController.navigate(UnrecognizedSms) { launchSingleTop = true }
+                },
+                onNavigateToFaq = {
+                    navController.navigate(Faq) { launchSingleTop = true }
+                },
+                onNavigateToBudgets = {
+                    navController.navigate(BudgetGroups()) { launchSingleTop = true }
+                },
+                onNavigateToExchangeRates = {
+                    navController.navigate(ExchangeRates) { launchSingleTop = true }
+                },
+                onNavigateToCardRewards = {
+                    navController.navigate(CardRewards) { launchSingleTop = true }
+                },
+                onNavigateToImportStatement = {
+                    navController.navigate(ImportStatement) { launchSingleTop = true }
+                },
+                onNavigateToTransactionGroups = {
+                    navController.navigate(TransactionGroups) { launchSingleTop = true }
+                },
+                onNavigateToWebhooks = {
+                    navController.navigate(Webhooks) { launchSingleTop = true }
+                },
+                onNavigateToAiAccess = {
+                    navController.navigate(AiAccess) { launchSingleTop = true }
+                }
+            )
+        }
+
+        composable<AiAccess> {
+            com.moneytracker.app.ui.screens.settings.aiaccess.AiAccessScreen(
+                onNavigateBack = { navController.safePopBackStack() }
+            )
+        }
+
+        composable<Webhooks> {
+            com.moneytracker.app.ui.screens.settings.webhooks.WebhooksScreen(
+                onNavigateBack = { navController.safePopBackStack() }
+            )
+        }
+
+        composable<Categories>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.categories.CategoriesScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                }
+            )
+        }
+        
+        composable<TransactionDetail>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+            popEnterTransition = { fadeIn() },
+            popExitTransition = { fadeOut() }
+        ) { backStackEntry ->
+            val transactionDetail = backStackEntry.toRoute<TransactionDetail>()
+            CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this@composable) {
+                com.moneytracker.app.presentation.transactions.TransactionDetailScreen(
+                    transactionId = transactionDetail.transactionId,
+                    onNavigateBack = {
+                        onEditComplete()
+                        navController.safePopBackStack()
+                    },
+                    onNavigateToLoanDetail = { loanId ->
+                        navController.navigate(LoanDetail(loanId)) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onDuplicateTransaction = { sourceId ->
+                        navController.navigate(AddTransaction(sourceTransactionId = sourceId)) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToGoal = { goalId ->
+                        navController.navigate(GoalDetail(goalId)) { launchSingleTop = true }
+                    },
+                    onCreateGoal = {
+                        navController.navigate(GoalEdit()) { launchSingleTop = true }
+                    }
+                )
+            }
+        }
+
+        composable<AddTransaction>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.add.AddScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                }
+            )
+        }
+        
+        composable<UnrecognizedSms>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.ui.screens.unrecognized.UnrecognizedSmsScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onAddSuggestion = { draft ->
+                    navController.navigate(draft) { launchSingleTop = true }
+                }
+            )
+        }
+        
+        composable<Faq>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.ui.screens.settings.FAQScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                }
+            )
+        }
+
+        composable<Rules>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.ui.screens.rules.RulesScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onNavigateToCreateRule = {
+                    navController.navigate(CreateRule()) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToEditRule = { ruleId ->
+                    navController.navigate(CreateRule(ruleId = ruleId)) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToDuplicateRule = { ruleId ->
+                    navController.navigate(CreateRule(duplicateFromId = ruleId)) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable<CreateRule>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) { backStackEntry ->
+            val createRule = backStackEntry.toRoute<CreateRule>()
+            val rulesViewModel: com.moneytracker.app.ui.viewmodel.RulesViewModel = hiltViewModel()
+
+            // Collect rules from the flow to find the rule being edited or duplicated.
+            val rules by rulesViewModel.rules.collectAsStateWithLifecycle()
+            val isEditing = createRule.ruleId != null
+
+            // Stable id for a duplicate, kept across recompositions/config changes.
+            val duplicateId = rememberSaveable { java.util.UUID.randomUUID().toString() }
+
+            // Edit prefills from the saved rule; duplicate prefills from the source but
+            // becomes a fresh rule (new id, "(copy)" name) so saving inserts a new one.
+            val prefillRule = when {
+                createRule.ruleId != null ->
+                    rules.firstOrNull { it.id == createRule.ruleId }
+                createRule.duplicateFromId != null ->
+                    rules.firstOrNull { it.id == createRule.duplicateFromId }?.let { source ->
+                        source.copy(
+                            id = duplicateId,
+                            name = "${source.name} (copy)",
+                            isSystemTemplate = false
+                        )
+                    }
+                else -> null
+            }
+            val accounts by rulesViewModel.accounts.collectAsStateWithLifecycle()
+
+            com.moneytracker.app.ui.screens.rules.CreateRuleScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onSaveRule = { rule ->
+                    // Edit updates in place; create/duplicate inserts a new rule.
+                    if (isEditing) {
+                        rulesViewModel.updateRule(rule)
+                    } else {
+                        rulesViewModel.createRule(rule)
+                    }
+                    navController.safePopBackStack()
+                },
+                existingRule = prefillRule,
+                isEditing = isEditing,
+                allAccounts = accounts
+            )
+        }
+        
+        composable<AccountDetail>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.accounts.AccountDetailScreen(
+                onNavigateBack = { navController.safePopBackStack() },
+                onTransactionClick = { id ->
+                    navController.navigate(TransactionDetail(id)) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable<BudgetGroups>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) { backStackEntry ->
+            com.moneytracker.app.presentation.budgetgroups.BudgetGroupsScreen(
+                createGoalOnOpen = backStackEntry.toRoute<BudgetGroups>().createGoal,
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onNavigateToGroupEdit = { groupId ->
+                    navController.navigate(BudgetGroupEdit(groupId)) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToHistory = { groupId, year, month ->
+                    navController.navigate(BudgetHistory(groupId, year, month)) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToCategory = { category, yearMonth, currency ->
+                    navController.navigate(TransactionsWithFilter(category, yearMonth, currency)) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToGoal = { goalId ->
+                    navController.navigate(GoalDetail(goalId)) { launchSingleTop = true }
+                },
+                onNavigateToGoalEdit = { goalId ->
+                    navController.navigate(GoalEdit(goalId)) { launchSingleTop = true }
+                }
+            )
+        }
+
+        composable<GoalDetail>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.goals.GoalDetailScreen(
+                onNavigateBack = { navController.safePopBackStack() },
+                onEdit = { goalId -> navController.navigate(GoalEdit(goalId)) { launchSingleTop = true } },
+                onOpenTransaction = { transactionId ->
+                    navController.navigate(TransactionDetail(transactionId)) { launchSingleTop = true }
+                },
+                // Repeat for next year opens the new copy in place of this one.
+                onOpenGoal = { goalId ->
+                    navController.navigate(GoalDetail(goalId)) {
+                        popUpTo<GoalDetail> { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable<GoalEdit>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.goals.GoalEditScreen(
+                onNavigateBack = { navController.safePopBackStack() }
+            )
+        }
+
+        composable<BudgetGroupEdit>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.budgetgroups.BudgetGroupEditScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                }
+            )
+        }
+
+        composable<BudgetHistory>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.budgetgroups.BudgetHistoryScreen(
+                onNavigateBack = { navController.safePopBackStack() }
+            )
+        }
+
+        composable<Loans>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.loans.LoansScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onNavigateToLoanDetail = { loanId ->
+                    navController.navigate(LoanDetail(loanId)) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable<RecurringTransactions>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.recurring.RecurringTransactionsScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                }
+            )
+        }
+
+        composable<LoanDetail>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.loans.LoanDetailScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onNavigateToTransactionDetail = { txId ->
+                    navController.navigate(TransactionDetail(txId)) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable<TransactionGroups>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.groups.TransactionGroupsScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onNavigateToGroupDetail = { groupId ->
+                    navController.navigate(TransactionGroupDetail(groupId)) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable<TransactionGroupDetail>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.groups.TransactionGroupDetailScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onNavigateToTransactionDetail = { txId ->
+                    navController.navigate(TransactionDetail(txId)) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable<ExchangeRates>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.exchangerates.ExchangeRatesScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                }
+            )
+        }
+
+        composable<ImportStatement>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.statement.ImportStatementScreen(
+                onNavigateBack = {
+                    navController.safePopBackStack()
+                },
+                onNavigateToOwnPayees = { navController.navigate(OwnPayees) { launchSingleTop = true } }
+            )
+        }
+
+        composable<CardRewards>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.rewards.CardRewardsScreen(
+                onNavigateBack = { navController.safePopBackStack() },
+                onTransactionClick = { id -> navController.navigate(TransactionDetail(id)) { launchSingleTop = true } }
+            )
+        }
+
+        composable<OwnPayees>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) {
+            com.moneytracker.app.presentation.payees.OwnPayeesScreen(
+                onNavigateBack = { navController.safePopBackStack() }
+            )
+        }
+
+        composable<TransactionsWithFilter>(
+            enterTransition = { fadeIn(tween(300)) + slideInVertically { it / 4 } },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(200)) + slideOutVertically { it / 4 } }
+        ) { backStackEntry ->
+            val args = backStackEntry.toRoute<TransactionsWithFilter>()
+            com.moneytracker.app.presentation.transactions.TransactionsScreen(
+                initialCategory = args.category,
+                initialPeriod = args.period,
+                initialCurrency = args.currency,
+                onNavigateBack = { navController.safePopBackStack() },
+                onTransactionClick = { transactionId ->
+                    navController.navigate(TransactionDetail(transactionId)) { launchSingleTop = true }
+                },
+                onAddTransactionClick = {
+                    navController.navigate(AddTransaction()) { launchSingleTop = true }
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Settings) { launchSingleTop = true }
+                }
+            )
+        }
+
+    }
+    }
+    }
+}

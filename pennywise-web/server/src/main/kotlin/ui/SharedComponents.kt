@@ -8,7 +8,7 @@ object SharedComponents {
     const val SITE_ORIGIN = "https://pennywise.zynth.dev"
 
     const val PLAY_STORE_URL =
-        "https://play.google.com/store/apps/details?id=com.pennywiseai.tracker"
+        "https://play.google.com/store/apps/details?id=com.moneytracker.app"
 
     /**
      * @param description meta description — the snippet Google shows under the result.

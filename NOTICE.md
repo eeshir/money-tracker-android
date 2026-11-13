@@ -14,9 +14,10 @@ service, you must offer them the corresponding source (AGPL §6 and §13).
 This project is **not affiliated with, sponsored by or endorsed by** the PennyWise AI
 project or its author. "PennyWise" and its logo and artwork are the original author's
 unregistered trademarks and are not licensed for use here ([`TRADEMARKS.md`](TRADEMARKS.md)).
-They are mentioned only to say where this code comes from. Internal package names such
-as `com.pennywiseai.tracker` are kept in the source to avoid a risky mass rename; they
-are not shown to users.
+They are mentioned only to say where this code comes from. The Kotlin packages were renamed
+to `com.moneytracker.*`; some internal class names that were not worth a risky mass rename
+(for example `PennyWiseDatabase`, `PennyWiseTheme`) and the database file name
+`pennywise_database` still carry the old name. They are not shown to users.
 
 ## Statement of modifications (AGPL §5(a))
 

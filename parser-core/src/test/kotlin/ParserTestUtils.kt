@@ -1,9 +1,9 @@
-package com.pennywiseai.parser.core.test
+package com.moneytracker.parser.core.test
 
-import com.pennywiseai.parser.core.ParsedTransaction
-import com.pennywiseai.parser.core.TransactionType
-import com.pennywiseai.parser.core.bank.BankParser
-import com.pennywiseai.parser.core.bank.BankParserFactory
+import com.moneytracker.parser.core.ParsedTransaction
+import com.moneytracker.parser.core.TransactionType
+import com.moneytracker.parser.core.bank.BankParser
+import com.moneytracker.parser.core.bank.BankParserFactory
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest

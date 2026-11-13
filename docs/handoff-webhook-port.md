@@ -52,7 +52,7 @@ rendering. The temporary emulator profile was deleted after verification.
 The APK is
 `app/build/outputs/apk/standard/debug/app-standard-universal-debug.apk`.
 Its application ID is **com.moneytracker.app.debug**, with activity
-**com.pennywiseai.tracker.MainActivity**. It is separate from the regular app.
+**com.moneytracker.app.MainActivity**. It is separate from the regular app.
 
 Maintainer follow-up checks confirmed that the standard free build opens the Pro
 sheet from Webhooks, while F-Droid opens the unlocked editor. The off-device

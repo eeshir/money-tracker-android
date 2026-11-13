@@ -1,8 +1,8 @@
-package com.pennywiseai.parser.core.bank
+package com.moneytracker.parser.core.bank
 
-import com.pennywiseai.parser.core.test.ExpectedTransaction
-import com.pennywiseai.parser.core.test.ParserTestCase
-import com.pennywiseai.parser.core.test.ParserTestUtils
+import com.moneytracker.parser.core.test.ExpectedTransaction
+import com.moneytracker.parser.core.test.ParserTestCase
+import com.moneytracker.parser.core.test.ParserTestUtils
 import org.junit.jupiter.api.*
 import java.math.BigDecimal
 
@@ -44,7 +44,7 @@ T&C. Ignore if paid""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("500.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     accountLast4 = "1234",
                     reference = "123456789012"
                 )
@@ -57,7 +57,7 @@ T&C. Ignore if paid""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("15000.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     accountLast4 = "1234",
                     merchant = "TEST MERCHANT"
                 )
@@ -71,7 +71,7 @@ T&C. Ignore if paid""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("1.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.INCOME,
+                    type = com.moneytracker.parser.core.TransactionType.INCOME,
                     accountLast4 = "9999",
                     merchant = "ACME TECHNOLOGIES",
                     balance = BigDecimal("8.00")
@@ -88,7 +88,7 @@ T&C. Ignore if paid""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("34274.66"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.INCOME,
+                    type = com.moneytracker.parser.core.TransactionType.INCOME,
                     accountLast4 = "1111"
                 )
             ),
@@ -103,7 +103,7 @@ T&C. Ignore if paid""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("862.16"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.INCOME,
+                    type = com.moneytracker.parser.core.TransactionType.INCOME,
                     merchant = "AMAZON",
                     accountLast4 = "5555"
                 )
@@ -116,7 +116,7 @@ T&C. Ignore if paid""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("517.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     accountLast4 = "5678",
                     reference = "123456789012",
                     merchant = "*ab1cd@xyz"
@@ -130,7 +130,7 @@ T&C. Ignore if paid""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("12345.67"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     accountLast4 = "4321",
                     merchant = "ACMEPAYMENTS"
                 )

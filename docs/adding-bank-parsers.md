@@ -6,7 +6,7 @@ trivial tweak, prefer the **`parser-author`** subagent, which owns this
 end-to-end (read samples → write/extend parser → tests → register → run tests).
 
 ## Where parsers live
-`parser-core/src/main/kotlin/com/pennywiseai/parser/core/bank/`
+`parser-core/src/main/kotlin/com/moneytracker/parser/core/bank/`
 
 ## Base class — pick the right one
 All parsers extend `BankParser`. But:
@@ -46,8 +46,8 @@ comments inside the file explain existing precedence rules; keep them accurate.
 
 ## Return type & imports (parser-core)
 Use `ParsedTransaction` from parser-core:
-- `com.pennywiseai.parser.core.TransactionType`
-- `com.pennywiseai.parser.core.ParsedTransaction`
+- `com.moneytracker.parser.core.TransactionType`
+- `com.moneytracker.parser.core.ParsedTransaction`
 - `java.math.BigDecimal` for amounts
 
 The same sources also compile for iOS, where `parser-core/src/iosMain` stands
@@ -62,7 +62,7 @@ add the API to the stand-in or avoid it. On a Mac,
 in `src/test/resources/ios-parity.tsv` parses the same on iOS as on the JVM.
 
 ## Using a parser result in the app
-Convert with `com.pennywiseai.tracker.data.mapper.toEntity()`, which maps
+Convert with `com.moneytracker.app.data.mapper.toEntity()`, which maps
 `ParsedTransaction` → `TransactionEntity` and handles cross-module type
 conversions.
 

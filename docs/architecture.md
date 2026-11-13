@@ -95,7 +95,7 @@ message to every candidate parser by content — see
 ## Module Structure
 ```
 app/
-├── src/main/java/com/pennywiseai/tracker/
+├── src/main/java/com/moneytracker/app/
 │   ├── presentation/            # Feature screens + ViewModels (home, accounts,
 │   │   │                        #   add, transactions, budgetgroups, categories,
 │   │   │                        #   subscriptions, loans, groups, paywall, share,
