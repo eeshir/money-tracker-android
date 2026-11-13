@@ -1,0 +1,1 @@
+• Removed the in-app "Support development" tip jar and its UPI address, the Discord link, the Pro sales line and the "report a parsing problem" action that opened another site. User guide and issue links now point to this repo.

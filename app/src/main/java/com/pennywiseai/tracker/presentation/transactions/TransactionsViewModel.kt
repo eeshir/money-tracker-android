@@ -40,7 +40,6 @@ import com.pennywiseai.tracker.domain.usecase.RestoreTransactionUseCase
 import com.pennywiseai.tracker.data.preferences.IgnoredAccountsStore
 import com.pennywiseai.tracker.utils.forTotals
 import com.pennywiseai.tracker.utils.CurrencyUtils
-import com.pennywiseai.tracker.utils.SmsReportUrlBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -1570,11 +1569,6 @@ class TransactionsViewModel @Inject constructor(
             }
         }
     }
-
-    fun getReportUrl(transaction: TransactionEntity): String {
-        return SmsReportUrlBuilder.buildUrl(context, transaction.smsBody, transaction.smsSender)
-    }
-    
 }
 
 data class TransactionsUiState(

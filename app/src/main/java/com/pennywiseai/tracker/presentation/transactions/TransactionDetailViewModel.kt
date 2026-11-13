@@ -43,7 +43,6 @@ import com.pennywiseai.tracker.data.database.entity.TransactionGroupEntity
 import com.pennywiseai.tracker.domain.loan.LoanCurrencyRules
 import com.pennywiseai.tracker.domain.usecase.DeleteTransactionUseCase
 import com.pennywiseai.tracker.core.Constants
-import com.pennywiseai.tracker.utils.SmsReportUrlBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -1172,16 +1171,6 @@ class TransactionDetailViewModel @Inject constructor(
             _errorMessage.value = null
         }
     }
-    
-    fun getReportUrl(): String {
-        val txn = _transaction.value ?: return ""
-        val smsBody = txn.smsBody ?: "Transaction: ${txn.merchantName} - ${txn.amount}"
-        android.util.Log.d("TransactionDetailVM", "Generating report URL for transaction")
-        val url = SmsReportUrlBuilder.buildUrl(context, smsBody, txn.smsSender)
-        android.util.Log.d("TransactionDetailVM", "Report URL: ${url.take(200)}...")
-        return url
-    }
-    
     fun showDeleteDialog() {
         _showDeleteDialog.value = true
     }

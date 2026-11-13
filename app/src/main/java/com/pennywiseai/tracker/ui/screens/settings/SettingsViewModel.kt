@@ -45,7 +45,6 @@ import com.pennywiseai.tracker.domain.usecase.DeleteAllTransactionsUseCase
 import com.pennywiseai.tracker.data.database.entity.AccountBalanceEntity
 import com.pennywiseai.tracker.utils.CurrencyFormatter
 import com.pennywiseai.tracker.utils.CurrencyUtils
-import com.pennywiseai.tracker.utils.SmsReportUrlBuilder
 import android.content.Intent
 import androidx.core.content.FileProvider
 import com.pennywiseai.tracker.core.Constants
@@ -421,32 +420,6 @@ class SettingsViewModel @Inject constructor(
             userPreferencesRepository.updateSmsScanAllTime(false)
             userPreferencesRepository.updateSmsScanUseCustomDate(true)
             userPreferencesRepository.updateSmsScanCustomDate(normalizedDate)
-        }
-    }
-    
-    fun openUnrecognizedSmsReport(context: Context) {
-        viewModelScope.launch {
-            try {
-                val firstUnreported = unrecognizedSmsRepository.getFirstUnreported()
-                
-                if (firstUnreported != null) {
-                    val url = SmsReportUrlBuilder.buildUrl(context, firstUnreported.smsBody, firstUnreported.sender)
-                    Log.d("SettingsViewModel", "Full URL length: ${url.length}")
-                    
-                    // Open in browser
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    context.startActivity(intent)
-                    
-                    // Mark as reported
-                    unrecognizedSmsRepository.markAsReported(listOf(firstUnreported.id))
-                    
-                    Log.d("SettingsViewModel", "Opened report for unrecognized SMS from: ${firstUnreported.sender}")
-                } else {
-                    Log.d("SettingsViewModel", "No unreported SMS messages found")
-                }
-            } catch (e: Exception) {
-                Log.e("SettingsViewModel", "Error opening unrecognized SMS report", e)
-            }
         }
     }
     

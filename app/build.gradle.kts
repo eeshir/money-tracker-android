@@ -21,26 +21,23 @@ android {
         applicationId = "com.moneytracker.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 156
-        versionName = "2.48.2"
+        versionCode = 157
+        versionName = "2.48.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        // Load RSA public key from local.properties
+        // Optional local.properties values
         val localPropertiesFile = rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
             val localProperties = Properties()
             localProperties.load(localPropertiesFile.inputStream())
 
-            val rsaPublicKey = localProperties.getProperty("RSA_PUBLIC_KEY", "")
-            buildConfigField("String", "RSA_PUBLIC_KEY", "\"$rsaPublicKey\"")
             // Cloudflare Worker that frees a license key's activation so it
             // can move to a new phone. Empty = "Move to this device" hidden.
             val licenseMoveUrl = localProperties.getProperty("LICENSE_MOVE_URL", "")
             buildConfigField("String", "LICENSE_MOVE_URL", "\"$licenseMoveUrl\"")
         } else {
             // Fallback empty key for CI/CD builds
-            buildConfigField("String", "RSA_PUBLIC_KEY", "\"\"")
             buildConfigField("String", "LICENSE_MOVE_URL", "\"\"")
         }
     }

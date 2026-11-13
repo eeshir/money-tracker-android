@@ -131,7 +131,7 @@ fun UpgradeSheet(
                     context.startActivity(
                         android.content.Intent(
                             android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.parse(Constants.Links.DISCORD_URL),
+                            android.net.Uri.parse(Constants.Links.ISSUES_URL),
                         ),
                     )
                 }
@@ -279,15 +279,6 @@ private fun UpgradeBody(
     }
     Spacer(Modifier.height(Spacing.md))
 
-    // Plain text, deliberately: no hyperlink, no button that navigates, no
-    // webview. Play's Payments policy FAQ allows a consumption-only app (one
-    // that sells nothing in-app, which is what this sheet now is) to name
-    // where its products are sold "without direct links" — its own example
-    // being "Go to our website to upgrade your subscription to Premium".
-    // Copy puts that same text on the clipboard; the user opens their own
-    // browser. Nothing here navigates anywhere, which is what the rule bans.
-    ProAvailableLine()
-    Spacer(Modifier.height(Spacing.md))
 
     TrustRow(
         isRestoring = state.isPurchasing,
@@ -361,59 +352,6 @@ private fun EyebrowChip(text: String, isAccent: Boolean) {
         )
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────
-// Where Pro is sold — text plus a clipboard copy. Never a link.
-// ─────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun ProAvailableLine() {
-    val address = remember { Constants.Links.PRO_PAGE_URL.removePrefix("https://") }
-    val clipboard = LocalClipboardManager.current
-    var copied by remember { mutableStateOf(false) }
-
-    LaunchedEffect(copied) {
-        if (copied) {
-            delay(COPIED_LABEL_MS)
-            copied = false
-        }
-    }
-
-    // A column, not a row: the sentence plus the action don't share a line at
-    // larger font sizes, and a stranded button reads as a layout bug.
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Dimensions.Padding.content),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        SelectionContainer {
-            Text(
-                text = stringResource(R.string.upgrade_available_at, address),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-        }
-        TextButton(
-            onClick = {
-                // Exactly the text shown above — the user pastes it themselves.
-                clipboard.setText(AnnotatedString(address))
-                copied = true
-            },
-            contentPadding = PaddingValues(horizontal = Spacing.xs, vertical = Spacing.none),
-        ) {
-            Text(
-                text = stringResource(if (copied) R.string.upgrade_copied else R.string.upgrade_copy_address),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-    }
-}
-
-private const val COPIED_LABEL_MS = 2_000L
 
 // ─────────────────────────────────────────────────────────────────────────
 // Includes — checklist of unlocked features. Reassures post-decision.

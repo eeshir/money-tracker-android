@@ -73,12 +73,10 @@ object Constants {
      * External Links
      */
     object Links {
-        const val DISCORD_URL = "https://discord.gg/H3xWeMWjKQ"
         const val GITHUB_URL = "https://github.com/eeshir/money-tracker-android"
-        const val WEB_PARSER_URL = "https://pennywise.zynth.dev"
-        /** Where Pro is sold. The Play upgrade sheet shows it as plain text only — never a link. */
-        const val PRO_PAGE_URL = "$WEB_PARSER_URL/pro"
-        /** `?app=1` serves the guide without Get Pro or links to purchase pages (Play anti-steering). */
-        const val USER_GUIDE_URL = "$WEB_PARSER_URL/guide?app=1"
+        /** Where bugs and feature requests go. */
+        const val ISSUES_URL = "$GITHUB_URL/issues/new/choose"
+        /** The README, which links the setup guide. */
+        const val USER_GUIDE_URL = "$GITHUB_URL#readme"
     }
 }

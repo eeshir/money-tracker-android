@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.annotation.StringRes
 import com.pennywiseai.tracker.R
+import com.pennywiseai.tracker.core.Constants
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pennywiseai.tracker.ui.components.CustomTitleTopAppBar
@@ -270,7 +271,7 @@ fun FAQScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/sarim2000/pennywiseai-tracker/issues/new/choose"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.Links.ISSUES_URL))
                         context.startActivity(intent)
                     }
             ) {

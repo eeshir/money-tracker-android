@@ -89,11 +89,6 @@ class ImportStatementViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ImportStatementUiState>(ImportStatementUiState.Idle)
     val uiState: StateFlow<ImportStatementUiState> = _uiState.asStateFlow()
 
-    // F-Droid-only contextual support nudge, shown once per global cooldown after
-    // a successful import (a Pro-equivalent power feature on the open build).
-    private val _showSupportNudge = MutableStateFlow(false)
-    val showSupportNudge: StateFlow<Boolean> = _showSupportNudge.asStateFlow()
-
     private val _savedStatements = MutableStateFlow<List<com.pennywiseai.tracker.data.statement.SavedStatement>>(emptyList())
     /** Statement PDFs kept from earlier imports, newest first. */
     val savedStatements: StateFlow<List<com.pennywiseai.tracker.data.statement.SavedStatement>> = _savedStatements.asStateFlow()
@@ -351,11 +346,6 @@ class ImportStatementViewModel @Inject constructor(
                 // nothing, so it doesn't use up the month's free import.
                 if (result.imported + result.enriched > 0) {
                     preferences.markStatementImported(System.currentTimeMillis())
-                    // Gate the claim on the flavor first so Play builds (where the
-                    // nudge never renders) don't silently consume the global cap.
-                    if (BuildConfig.IS_FDROID_BUILD && preferences.claimSupportNudge()) {
-                        _showSupportNudge.value = true
-                    }
                     WidgetRefresher.refreshTransactionWidgets(appContext)
                 }
                 val card = p.account
@@ -470,14 +460,6 @@ class ImportStatementViewModel @Inject constructor(
         _uiState.value = ImportStatementUiState.Idle
         viewModelScope.launch(Dispatchers.IO) { importStatementUseCase.closeOpenedStatement() }
         refreshSaved()
-        // Clear the nudge so a subsequent import in the same screen instance
-        // doesn't re-show a card the cooldown would otherwise suppress.
-        _showSupportNudge.value = false
-    }
-
-    /** Consume the nudge once the user acts on it (opens the tip jar). */
-    fun dismissSupportNudge() {
-        _showSupportNudge.value = false
     }
 
     private companion object {

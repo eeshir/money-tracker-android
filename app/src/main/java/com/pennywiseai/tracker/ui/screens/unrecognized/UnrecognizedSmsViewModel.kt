@@ -17,7 +17,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.combine
-import com.pennywiseai.tracker.utils.SmsReportUrlBuilder
 import com.pennywiseai.parser.core.GenericTransactionExtractor
 import com.pennywiseai.parser.core.ParsedTransaction
 import kotlinx.coroutines.Dispatchers
@@ -70,25 +69,6 @@ class UnrecognizedSmsViewModel @Inject constructor(
         _showReported.value = !_showReported.value
     }
     
-    fun reportMessage(message: UnrecognizedSmsEntity) {
-        viewModelScope.launch {
-            try {
-                val url = SmsReportUrlBuilder.buildUrl(context, message.smsBody, message.sender)
-                Log.d("UnrecognizedSmsViewModel", "Full URL length: ${url.length}")
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-                context.startActivity(intent)
-                
-                // Mark as reported
-                unrecognizedSmsRepository.markAsReported(listOf(message.id))
-                
-                Log.d("UnrecognizedSmsViewModel", "Opened report for message from: ${message.sender}")
-            } catch (e: Exception) {
-                Log.e("UnrecognizedSmsViewModel", "Error opening report", e)
-            }
-        }
-    }
     
     fun deleteMessage(message: UnrecognizedSmsEntity) {
         viewModelScope.launch {

@@ -55,7 +55,6 @@
     <string name="unrecognized_delete">Delete</string>
     <string name="unrecognized_cancel">Cancel</string>
     <string name="unrecognized_reported_badge">Reported</string>
-    <string name="unrecognized_report">Report</string>
     <string name="unrecognized_suggestion">Looks like: %1$s</string>
     <string name="unrecognized_suggestion_debit">%1$s debit</string>
     <string name="unrecognized_suggestion_credit">%1$s credit</string>
@@ -159,9 +158,6 @@
     <string name="upgrade_subtitle_upgrade">Everything unlocked with a license key</string>
     <string name="upgrade_enter_license_key">Enter license key</string>
     <string name="upgrade_support_note">Built by a solo dev — Pro funds what\'s next. Thank you.</string>
-    <string name="upgrade_available_at">Money Tracker Pro is available at %1$s</string>
-    <string name="upgrade_copied">Copied</string>
-    <string name="upgrade_copy_address">Copy address</string>
     <string name="upgrade_includes">Includes</string>
     <string name="upgrade_feature_rules">Unlimited custom rules</string>
     <string name="upgrade_feature_statements">Unlimited statement imports</string>
