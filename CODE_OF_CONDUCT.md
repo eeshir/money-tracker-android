@@ -23,14 +23,13 @@ Examples of unacceptable behavior:
 
 ## Scope
 
-This Code of Conduct applies within all community spaces—GitHub issues, discussions, pull requests, and our Discord server—as well as when an individual is officially representing the project in public spaces.
+This Code of Conduct applies within all community spaces—GitHub issues, discussions and pull requests, as well as when an individual is officially representing the project in public spaces.
 
 ## Enforcement
 
 If you witness or experience unacceptable behavior:
 - Open a private report by contacting project maintainers via one of the following:
   - GitHub: open an issue labeled `conduct` (you may immediately request that maintainers move details to a private channel)
-  - Discord: send a direct message to a maintainer or moderator listed in the server member list
 - For urgent safety concerns, prioritize your safety and contact local authorities.
 
 All reports will be reviewed and investigated promptly and fairly. The maintainers will respect the reporter’s confidentiality to the extent possible and necessary to address the issue.

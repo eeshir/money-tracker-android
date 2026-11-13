@@ -1,0 +1,1 @@
+• Hid the "Connect Claude / ChatGPT" settings row (its server is not part of this app), share cards now link to this repo, and the code of conduct no longer mentions another project's Discord.
