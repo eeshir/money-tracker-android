@@ -827,20 +827,6 @@ fun SettingsScreen(
                 )
             }
 
-            // ── AI Features ──
-            SectionHeaderV2(title = stringResource(R.string.settings_ai_section))
-            SettingsGroup {
-                SettingsNavItem(
-                    icon = Icons.Default.AutoAwesome,
-                    iconBgColor = indigo_light,
-                    iconTint = indigo_dark,
-                    title = stringResource(R.string.ai_access_settings_title),
-                    subtitle = stringResource(if (isProEntitled) R.string.ai_access_settings_subtitle else R.string.ai_access_settings_subtitle_pro),
-                    onClick = { if (isProEntitled) onNavigateToAiAccess() else showUpgradeSheet = true },
-                    position = ListItemPosition.Single
-                )
-            }
-
             // ── Developer ──
             SectionHeaderV2(title = stringResource(R.string.settings_developer_section))
             SettingsGroup {
