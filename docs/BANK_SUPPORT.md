@@ -22,7 +22,7 @@ It regenerates the JSON, the README bank table, the Play listing copy, and copie
 2. `BankParserFactory.getParsers()` returns every parser whose `canHandle(sender)` matches the sender ID.
 3. Each candidate parser's `parse()` runs against the body in **registration order** until one returns a `ParsedTransaction`. Order matters — a broad matcher placed above a narrow one will swallow its messages.
 
-Parsers extend one of five base classes in `parser-core/src/main/kotlin/com/pennywiseai/parser/core/bank/`: `BankParser` (generic international), `BaseIndianBankParser`, `UAEBankParser`, `BaseIranianBankParser`, or `BaseThailandBankParser`. Pick the regional base when one exists; it carries currency handling and common patterns for that market.
+Parsers extend one of five base classes in `parser-core/src/main/kotlin/com/moneytracker/parser/core/bank/`: `BankParser` (generic international), `BaseIndianBankParser`, `UAEBankParser`, `BaseIranianBankParser`, or `BaseThailandBankParser`. Pick the regional base when one exists; it carries currency handling and common patterns for that market.
 
 Full contributor walkthrough: [adding-bank-parsers.md](adding-bank-parsers.md). Test conventions: [parser-test-standards.md](parser-test-standards.md).
 
@@ -46,7 +46,7 @@ Two of the current card patterns in `HDFCBankParser.kt` show the flavor:
 "...spent on Card XX1234"
 ```
 
-Each pattern lives beside its siblings in the same parser file, so grepping a bank's name inside `parser-core/src/main/kotlin/com/pennywiseai/parser/core/bank/` shows every message shape it handles.
+Each pattern lives beside its siblings in the same parser file, so grepping a bank's name inside `parser-core/src/main/kotlin/com/moneytracker/parser/core/bank/` shows every message shape it handles.
 
 ## Adding a bank
 

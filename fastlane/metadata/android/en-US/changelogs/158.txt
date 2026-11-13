@@ -1,0 +1,1 @@
+• Internal code packages renamed from com.pennywiseai.* to com.moneytracker.*. Nothing changes in the app itself; your data and backups are unaffected.

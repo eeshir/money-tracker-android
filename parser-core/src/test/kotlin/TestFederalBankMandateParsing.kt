@@ -1,9 +1,9 @@
-import com.pennywiseai.parser.core.TransactionType
-import com.pennywiseai.parser.core.bank.FederalBankParser
-import com.pennywiseai.parser.core.test.ExpectedTransaction
-import com.pennywiseai.parser.core.test.ParserTestCase
-import com.pennywiseai.parser.core.test.ParserTestUtils
-import com.pennywiseai.parser.core.test.TestResult
+import com.moneytracker.parser.core.TransactionType
+import com.moneytracker.parser.core.bank.FederalBankParser
+import com.moneytracker.parser.core.test.ExpectedTransaction
+import com.moneytracker.parser.core.test.ParserTestCase
+import com.moneytracker.parser.core.test.ParserTestUtils
+import com.moneytracker.parser.core.test.TestResult
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 

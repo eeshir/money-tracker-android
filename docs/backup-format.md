@@ -223,7 +223,7 @@ savings goals (`oldBackupMissingGoals_*`, `goals_roundTrip*`).
 
 Run them:
 ```bash
-./gradlew :app:testStandardDebugUnitTest --tests "com.pennywiseai.tracker.data.backup.*"
+./gradlew :app:testStandardDebugUnitTest --tests "com.moneytracker.app.data.backup.*"
 ```
 
 When you touch the backup format, **add a regression test that decodes an

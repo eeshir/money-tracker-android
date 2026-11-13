@@ -1,8 +1,8 @@
-import com.pennywiseai.parser.core.TransactionType
-import com.pennywiseai.parser.core.bank.NavyFederalParser
-import com.pennywiseai.parser.core.test.ExpectedTransaction
-import com.pennywiseai.parser.core.test.ParserTestCase
-import com.pennywiseai.parser.core.test.ParserTestUtils
+import com.moneytracker.parser.core.TransactionType
+import com.moneytracker.parser.core.bank.NavyFederalParser
+import com.moneytracker.parser.core.test.ExpectedTransaction
+import com.moneytracker.parser.core.test.ParserTestCase
+import com.moneytracker.parser.core.test.ParserTestUtils
 import org.junit.jupiter.api.*
 import java.math.BigDecimal
 
@@ -205,7 +205,7 @@ class NavyFederalParserTest {
     @TestFactory
     fun `factory resolves navy federal`(): List<DynamicTest> {
         val cases = listOf(
-            com.pennywiseai.parser.core.test.SimpleTestCase(
+            com.moneytracker.parser.core.test.SimpleTestCase(
                 bankName = "Navy Federal Credit Union",
                 sender = "NFCU",
                 currency = "USD",
@@ -220,7 +220,7 @@ class NavyFederalParserTest {
                 ),
                 shouldHandle = true
             ),
-            com.pennywiseai.parser.core.test.SimpleTestCase(
+            com.moneytracker.parser.core.test.SimpleTestCase(
                 bankName = "Navy Federal Credit Union",
                 sender = "NAVYFED",
                 currency = "USD",

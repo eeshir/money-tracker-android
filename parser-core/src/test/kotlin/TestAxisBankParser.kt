@@ -1,8 +1,8 @@
-package com.pennywiseai.parser.core.bank
+package com.moneytracker.parser.core.bank
 
-import com.pennywiseai.parser.core.test.ExpectedTransaction
-import com.pennywiseai.parser.core.test.ParserTestCase
-import com.pennywiseai.parser.core.test.ParserTestUtils
+import com.moneytracker.parser.core.test.ExpectedTransaction
+import com.moneytracker.parser.core.test.ParserTestCase
+import com.moneytracker.parser.core.test.ParserTestUtils
 import org.junit.jupiter.api.*
 import java.math.BigDecimal
 
@@ -31,7 +31,7 @@ Not you? SMS BLOCK 0818 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("131"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "Swiggy",
                     accountLast4 = "0818",
                     isFromCard = true,
@@ -51,7 +51,7 @@ Not you? SMS BLOCK 5678 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("1299.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "Amazon",
                     accountLast4 = "5678",
                     isFromCard = true,
@@ -72,7 +72,7 @@ SMS BLOCK 7441 to 919951860002, if not you - Axis Bank""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("562"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "AVENUE",  // cleanMerchantName converts ALL_CAPS -> Proper Case, but single words stay uppercase
                     accountLast4 = "7441",
                     isFromCard = true,
@@ -92,7 +92,7 @@ Not you? SMS BLOCK 7441 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("174"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "Blinkit",
                     accountLast4 = "7441",
                     isFromCard = true,
@@ -113,7 +113,7 @@ SMS BLOCK 7441 to 919951860002, if not you - Axis Bank""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("207"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "Blinkit",
                     accountLast4 = "7441",
                     isFromCard = true,
@@ -129,7 +129,7 @@ SMS BLOCK 7441 to 919951860002, if not you - Axis Bank""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("623"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "SWIGGY FOOD",
                     accountLast4 = "1234",
                     isFromCard = true,
@@ -144,7 +144,7 @@ SMS BLOCK 7441 to 919951860002, if not you - Axis Bank""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("1568"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "BLINKIT",
                     accountLast4 = "1234",
                     isFromCard = true,
@@ -164,7 +164,7 @@ Not you? SMS BLOCK 6018 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("500"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "BPCL ARUNAA",
                     accountLast4 = "6018",
                     isFromCard = true,
@@ -184,7 +184,7 @@ Not you? SMS BLOCK 6018 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("500"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.CREDIT,
+                    type = com.moneytracker.parser.core.TransactionType.CREDIT,
                     merchant = "JSK FUEL ST",
                     accountLast4 = "6018",
                     isFromCard = true,
@@ -200,7 +200,7 @@ Not you? SMS BLOCK 6018 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("2000.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "ATM",
                     accountLast4 = "9034",
                     balance = BigDecimal("98919.81")
@@ -215,7 +215,7 @@ Not you? SMS BLOCK 6018 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("209.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "BURGRILL",
                     accountLast4 = null
                 )
@@ -228,7 +228,7 @@ Not you? SMS BLOCK 6018 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("1028.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "RESTAURANT XY",
                     accountLast4 = null
                 )
@@ -241,7 +241,7 @@ Not you? SMS BLOCK 6018 to 919951860002""",
                 expected = ExpectedTransaction(
                     amount = BigDecimal("500.00"),
                     currency = "INR",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "MERCHANT ABC",
                     accountLast4 = "2225",
                     balance = BigDecimal("10000.00")

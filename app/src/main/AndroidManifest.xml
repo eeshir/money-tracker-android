@@ -148,8 +148,8 @@
             android:name=".receiver.NotificationActionReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.pennywiseai.tracker.ACTION_DELETE_TRANSACTION" />
-                <action android:name="com.pennywiseai.tracker.ACTION_CONFIRM_TRANSACTION" />
+                <action android:name="com.moneytracker.app.ACTION_DELETE_TRANSACTION" />
+                <action android:name="com.moneytracker.app.ACTION_CONFIRM_TRANSACTION" />
             </intent-filter>
         </receiver>
 

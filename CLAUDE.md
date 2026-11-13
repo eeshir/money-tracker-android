@@ -5,8 +5,10 @@ bank SMS **entirely on-device**. The primary app is Android (Jetpack Compose +
 Material 3); the repo also contains a Kotlin Multiplatform `shared` module, an
 `iosApp`, and the original project's `pennywise-web` / `relay` (not used by this
 fork's app). It is a fork of PennyWise AI (AGPL-3.0, see `NOTICE.md`): the
-**PennyWise name, logo and artwork must not be used** here (`TRADEMARKS.md`), while
-internal package names (`com.pennywiseai.*`) stay as they are.
+**PennyWise name, logo and artwork must not be used** here (`TRADEMARKS.md`). Packages are
+`com.moneytracker.app` (app), `com.moneytracker.parser` (parser-core) and
+`com.moneytracker.shared`; a few classes still say `PennyWise…` (e.g. `PennyWiseDatabase`)
+and the DB file is `pennywise_database` — do not rename the DB file (it would orphan data).
 
 **This file is a router, not a manual.** Read the linked topic doc when a task
 touches its area. Everything under **Hard Constraints** is non-negotiable.

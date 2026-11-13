@@ -1,7 +1,7 @@
-package com.pennywiseai.parser.core.bank
+package com.moneytracker.parser.core.bank
 
-import com.pennywiseai.parser.core.test.TestResult
-import com.pennywiseai.parser.core.test.ParserTestUtils
+import com.moneytracker.parser.core.test.TestResult
+import com.moneytracker.parser.core.test.ParserTestUtils
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.TestFactory

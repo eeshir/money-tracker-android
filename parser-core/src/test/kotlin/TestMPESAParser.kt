@@ -1,8 +1,8 @@
-package com.pennywiseai.parser.core.bank
+package com.moneytracker.parser.core.bank
 
-import com.pennywiseai.parser.core.test.ExpectedTransaction
-import com.pennywiseai.parser.core.test.ParserTestCase
-import com.pennywiseai.parser.core.test.ParserTestUtils
+import com.moneytracker.parser.core.test.ExpectedTransaction
+import com.moneytracker.parser.core.test.ParserTestCase
+import com.moneytracker.parser.core.test.ParserTestUtils
 import org.junit.jupiter.api.*
 import java.math.BigDecimal
 
@@ -26,7 +26,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("70.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "person",
                     balance = BigDecimal("123.12"),
                     reference = "TJK6H7T3GA"
@@ -41,7 +41,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("100.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "JANE DOE",
                     balance = BigDecimal("4324.29")
                 )
@@ -53,7 +53,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("70.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "JANE DOE"
                 )
             ),
@@ -66,7 +66,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("500.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "Equity Paybill Account"
                 )
             ),
@@ -79,7 +79,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("1000.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "Equity Paybill Account",
                     balance = BigDecimal("123.12"),
                     reference = "TJK6H7T0JT"
@@ -94,7 +94,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("50.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "Person 2",
                     balance = BigDecimal("123.12"),
                     reference = "TJK6H7TDIJ"
@@ -109,7 +109,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("1120.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.EXPENSE,
+                    type = com.moneytracker.parser.core.TransactionType.EXPENSE,
                     merchant = "Person 4",
                     balance = BigDecimal("123.12"),
                     reference = "TJD6H78J2L"
@@ -124,7 +124,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("300.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.INCOME,
+                    type = com.moneytracker.parser.core.TransactionType.INCOME,
                     merchant = "Person 3",
                     balance = BigDecimal("123.12"),
                     reference = "TJF987E58C"
@@ -139,7 +139,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("3000.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.INCOME,
+                    type = com.moneytracker.parser.core.TransactionType.INCOME,
                     merchant = "BANK OF BARODA KENYA LIMITED",
                     balance = BigDecimal("123.12"),
                     reference = "TJE6H7BG0S"
@@ -154,7 +154,7 @@ class MPESAParserTest {
                 expected = ExpectedTransaction(
                     amount = BigDecimal("425.00"),
                     currency = "KES",
-                    type = com.pennywiseai.parser.core.TransactionType.INCOME,
+                    type = com.moneytracker.parser.core.TransactionType.INCOME,
                     merchant = "LOOP B2C",
                     balance = BigDecimal("123.11"),
                     reference = "TJ56H6J1WU"

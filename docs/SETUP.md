@@ -244,7 +244,8 @@ The format, compatibility rules and what each section does on restore are in
 To publish your own variant under your own name:
 
 1. Change `applicationId` in `app/build.gradle.kts` (debug adds `.debug` automatically).
-   Leave `namespace` and the Kotlin package folders alone; they do not need to match.
+   `namespace` (the Kotlin package, `com.moneytracker.app`) does not have to match it; you can
+   leave it, which avoids a mass rename. Do not rename the database file.
 2. Change `app_name` in `app/src/main/res/values/strings.xml` (debug has its own in
    `app/src/debug/res/values/strings.xml`).
 3. Replace the launcher icon: `app/src/main/res/drawable/ic_money_*.xml` (release) and

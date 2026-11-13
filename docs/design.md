@@ -2,7 +2,7 @@
 
 Material 3 (Expressive), with a small set of app-specific tokens and components
 layered on top. This document describes what is **actually implemented** — if
-the code and this file disagree, the code in `app/src/main/java/com/pennywiseai/tracker/ui/theme/`
+the code and this file disagree, the code in `app/src/main/java/com/moneytracker/app/ui/theme/`
 is the source of truth and this file is the bug.
 
 ## The one rule

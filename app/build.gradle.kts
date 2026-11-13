@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pennywiseai.tracker"
+    namespace = "com.moneytracker.app"
     compileSdk = 37
     
     buildFeatures {
@@ -21,8 +21,8 @@ android {
         applicationId = "com.moneytracker.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 157
-        versionName = "2.48.3"
+        versionCode = 158
+        versionName = "2.48.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
