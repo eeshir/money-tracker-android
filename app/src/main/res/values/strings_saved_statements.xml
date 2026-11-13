@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saved_statements_title">Saved statements</string>
+    <string name="saved_statements_description">Statements you\'ve imported are kept on this phone, still locked, so you can import them again with one tap. Their passwords are remembered, encrypted.</string>
+    <string name="saved_statements_delete">Delete saved statement</string>
+    <string name="saved_statements_not_imported">Not imported yet</string>
+    <string name="saved_statements_locked">Locked — open it once to enter its password</string>
+    <string name="saved_statements_unsupported">This kind of statement isn\'t supported yet</string>
+    <string name="saved_statements_imported_on">Imported %1$s</string>
+    <string name="saved_statements_forget_passwords">Forget saved passwords</string>
+</resources>

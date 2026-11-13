@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="own_payees_open">Own-account payees</string>
+    <string name="own_payees_title">Own-account payees</string>
+    <string name="own_payees_description">Payees that are your own accounts or card bills. A debit to one is paired with the credit on the other account, or that credit is recorded for you — and neither counts as spending or income.</string>
+    <string name="own_payees_empty">No payees yet.</string>
+    <string name="own_payees_add">Add payee</string>
+    <string name="own_payees_apply">Apply to existing transactions</string>
+    <string name="own_payees_result">Paired %1$d, recorded %2$d missing credits.</string>
+    <string name="own_payees_delete">Delete rule</string>
+    <string name="own_payees_field_payee">Payee name contains</string>
+    <string name="own_payees_field_from">From account</string>
+    <string name="own_payees_field_to">Credit goes to</string>
+    <string name="own_payees_any_account">Any account</string>
+    <string name="own_payees_pair_only">Nowhere — only pair with a matching credit</string>
+    <string name="own_payees_rule_any">%1$s → %2$s</string>
+    <string name="own_payees_rule_from">%1$s, from %2$s → %3$s</string>
+    <string name="own_payees_save">Save</string>
+    <string name="own_payees_cancel">Cancel</string>
+</resources>

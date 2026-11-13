@@ -1,0 +1,3 @@
+• Rewards card on Home: earned this month and in the last 3 months.
+• Card rewards: period filter and a by-merchant breakdown that flags spends earning only the base rate.
+• HDFC MoneyBack+ suggestion adds 5% for Myntra and e-vouchers.

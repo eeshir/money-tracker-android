@@ -1,0 +1,3 @@
+• HDFC rewards follow the statements: base 0.25%, 10X partners 2.5%; the statement's earned points are no longer counted twice.
+• SmartBuy bonus credits count as cashback; EMI conversions are no longer treated as refunds.
+• Duplicate finder also pairs a statement copy with an SMS one day apart.

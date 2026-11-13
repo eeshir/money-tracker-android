@@ -1,0 +1,1 @@
+• ICICI: the reward each statement prints beside a purchase is now used as that purchase's reward, so Amazon voucher purchases at 2% need no manual change. Newer purchases use your rates.

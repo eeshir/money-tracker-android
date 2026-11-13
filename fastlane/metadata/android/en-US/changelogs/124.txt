@@ -1,0 +1,1 @@
+• New: "Fetch older statements since January" on the Import Statement screen. It searches Gmail back to January and imports every statement, not just the newest per card, so card rewards can be checked across the whole history.

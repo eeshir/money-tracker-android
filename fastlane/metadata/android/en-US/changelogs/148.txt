@@ -1,0 +1,2 @@
+• Card rewards: Tata Neu Plus (HDFC) suggested rates, 2% NeuCoins on Tata partners, 1% elsewhere. Pick it under "Edit rates".
+• Analytics: merchant names now readable in dark and AMOLED themes.

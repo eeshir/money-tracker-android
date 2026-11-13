@@ -1,0 +1,2 @@
+• Backup now has tick boxes: choose whether to include receipt photos, saved statement PDFs, card rewards and webhooks (Settings > Export Data, and for the automatic backup).
+• Backups now carry your card reward setup and per-purchase rates, saved statements, webhooks and split-contact suggestions, so a restore on a new install brings them back.

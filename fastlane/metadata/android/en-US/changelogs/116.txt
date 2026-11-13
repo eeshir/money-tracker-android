@@ -1,0 +1,2 @@
+• Card rewards: statement check. Reward totals are read from your saved card statements and compared with the estimate for each cycle; gaps are flagged.
+• New field: value of one point (HDFC suggestion uses Rs 0.25).

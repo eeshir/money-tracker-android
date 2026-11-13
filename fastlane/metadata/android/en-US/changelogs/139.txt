@@ -1,0 +1,2 @@
+• Card rewards: finds the same purchase announced twice by SMS a day apart (using the ICICI statement rows) and can merge it.
+• A purchase that posted a day late still uses its printed statement reward.

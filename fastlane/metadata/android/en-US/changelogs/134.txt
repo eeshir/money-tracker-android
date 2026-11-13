@@ -1,0 +1,1 @@
+• ICICI statement reader keeps each row's merchant text so reward rates can be matched.

@@ -1,0 +1,2 @@
+• Statement readers for IDBI Bank and HDFC Bank savings accounts (direction from the running balance, checked against the statement's totals).
+• Bank statements whose payees mention PhonePe are no longer mistaken for PhonePe statements.

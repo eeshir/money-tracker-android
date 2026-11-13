@@ -1,0 +1,1 @@
+• Statement check reads HDFC bonus points and HSBC cashback credits, and keeps the reward lines it saw so other layouts can be fixed.

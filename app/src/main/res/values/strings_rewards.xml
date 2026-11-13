@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rewards_mode_advanced">Advanced</string>
+    <string name="rewards_mode_simple">Simple</string>
+    <string name="rewards_hero_title">Rewards earned · %1$s</string>
+    <string name="rewards_hero_subtitle">%1$d purchases · estimated from your card rates</string>
+    <string name="rewards_all_cards">All cards</string>
+    <string name="rewards_cards_title">Your cards</string>
+    <string name="rewards_card_purchases">%1$d purchases</string>
+    <string name="rewards_cap_used">%1$s of %2$s cap used this cycle · %3$s left · resets after %4$s</string>
+    <string name="rewards_set_up_rates">Set reward rates</string>
+    <string name="rewards_edit_rates">Edit rates</string>
+    <plurals name="rewards_attention">
+        <item quantity="one">%1$d statement cycle differs from the estimate</item>
+        <item quantity="other">%1$d statement cycles differ from the estimate</item>
+    </plurals>
+    <string name="rewards_attention_details">Details</string>
+    <string name="rewards_list_title">Purchases</string>
+    <string name="rewards_sort_newest">Newest</string>
+    <string name="rewards_sort_highest">Highest reward</string>
+    <string name="rewards_sort_merchant">Merchant A–Z</string>
+    <string name="rewards_earning_only">Earning only</string>
+    <string name="rewards_empty">No purchases in this period.</string>
+    <string name="rewards_row_refund">Refund</string>
+    <string name="rewards_row_bank_credit">Bank cashback</string>
+    <string name="rewards_row_no_reward">No reward</string>
+    <string name="rewards_row_capped">cap reached</string>
+    <string name="rewards_row_statement">from statement</string>
+</resources>

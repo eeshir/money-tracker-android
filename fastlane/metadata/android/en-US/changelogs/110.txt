@@ -1,0 +1,3 @@
+• New: Card rewards (Settings). Set each credit card's cashback/reward rates and see the total earned and the reward on every purchase.
+• Supports a base rate, special rates by merchant keyword, monthly caps and no-reward exclusions.
+• Figures are estimates from your rates, not bank-reported.

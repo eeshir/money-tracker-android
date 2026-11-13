@@ -1,0 +1,1 @@
+• Card rewards: each card with a cashback cap now shows how much of it is used in the current statement cycle, how much is left, and when it resets.
