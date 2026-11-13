@@ -1,0 +1,1 @@
+• Removed the original project's website, AI relay and iOS app from the repo, and rewrote the privacy policy to match what this app really does.

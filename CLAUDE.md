@@ -2,9 +2,9 @@
 
 Money Tracker is a privacy-first expense tracker that extracts transactions from
 bank SMS **entirely on-device**. The primary app is Android (Jetpack Compose +
-Material 3); the repo also contains a Kotlin Multiplatform `shared` module, an
-`iosApp`, and the original project's `pennywise-web` / `relay` (not used by this
-fork's app). It is a fork of PennyWise AI (AGPL-3.0, see `NOTICE.md`): the
+Material 3); the repo also has a pure-Kotlin `parser-core` and a Kotlin Multiplatform `shared`
+module. The original project's website, AI relay and iOS app were removed from this fork.
+It is a fork of PennyWise AI (AGPL-3.0, see `NOTICE.md`): the
 **PennyWise name, logo and artwork must not be used** here (`TRADEMARKS.md`). Packages are
 `com.moneytracker.app` (app), `com.moneytracker.parser` (parser-core) and
 `com.moneytracker.shared`; a few classes still say `PennyWise…` (e.g. `PennyWiseDatabase`)
@@ -112,9 +112,9 @@ part of the gate — don't use them to verify.
 ## Architecture at a glance
 - **Stack:** Kotlin · Jetpack Compose + Material 3 · MVVM + Clean Architecture ·
   StateFlow (unidirectional data flow) · Hilt DI · Room · WorkManager (background
-  SMS scanning) · Google AI Edge LiteRT-LM (Qwen 2.5) for on-device AI.
+  SMS scanning).
 - **Modules:** `app` (Android) · `parser-core` (pure-Kotlin bank SMS parsers, no
-  Android deps) · `shared` (KMP) · `iosApp` · `pennywise-web`.
+  Android deps) · `shared` (KMP).
 - **UI:** Material You dynamic color (Android 12+), full light/dark with semantic
   color roles, 8dp grid, Material 3 type scale. All screens use
   `PennyWiseScaffold` for consistent system-bar / TopAppBar handling. Always
@@ -134,7 +134,6 @@ part of the gate — don't use them to verify.
 | Parser tests | `docs/parser-test-standards.md` | Writing parser tests |
 | DB migrations | `docs/database-migrations.md` | Room schema changes |
 | Supported banks | `docs/BANK_SUPPORT.md`, `docs/supported-banks.json` | Which banks/patterns are covered (144 banks, 23 countries) |
-| AI access (MCP relay, dashboard) | `docs/ai-access.md`, `relay/README.md`, `docs/adr/0002-*` | Touching `aiaccess/`, the relay or the dashboard |
 | Refund links | `docs/REFUND_LINKS.md` | Refunds, floaters, `countedAmount()`, anything that sums expenses |
 | Roadmap / requirements | `docs/planned-features.md`, `docs/prd-unified-currency.md` | Feature scope / intent |
 
@@ -151,5 +150,3 @@ branch state matters.
 generates changelogs + release notes, builds the APKs (standard flavor signed;
 the F-Droid APK stays unsigned for IzzyOnDroid), tags, pushes, and cuts the
 GitHub release. Full flag reference in `docs/RELEASE.md`.
-`--web` needs Docker (OrbStack) running and `bun install` done in
-`pennywise-web/` — a fresh worktree has no `node_modules`.

@@ -128,9 +128,7 @@ app/
 │   ├── backup/ core/ initializer/ utils/
 └── build.gradle.kts             # Flavors: standard, fdroid
 parser-core/                     # Bank SMS parsers (Kotlin Multiplatform)
-shared/                          # KMP code shared with iOS
-iosApp/                          # Swift iOS app
-pennywise-web/                   # Web deployment (Cloudflare Worker + server/)
+shared/                          # Kotlin Multiplatform code
 ```
 
 ## Data Flow Example
