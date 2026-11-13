@@ -92,7 +92,7 @@ cd money-tracker-android
 
 ### Project Structure
 
-Money Tracker is a multi-module project (`settings.gradle.kts` includes `:app`, `:parser-core`, `:shared`, and `:iosApp`; the tree below also shows non-module directories):
+Money Tracker is a multi-module project (`settings.gradle.kts` includes `:app`, `:parser-core` and `:shared`; the tree below also shows non-module directories):
 
 ```
 app/                  # Android app (Compose UI, Room, Hilt)
@@ -104,10 +104,8 @@ app/                  # Android app (Compose UI, Room, Hilt)
     ├── navigation/       # Navigation graph
     ├── widget/ worker/ receiver/   # Widgets, WorkManager jobs, SMS receiver
     └── billing/ backup/ core/ utils/
-parser-core/          # Kotlin Multiplatform bank parsers (shared with iOS)
-shared/               # Shared Kotlin code for the iOS app
-iosApp/               # Swift iOS app
-pennywise-web/        # Web deployment (Cloudflare Worker + Ktor server)
+parser-core/          # Kotlin Multiplatform bank parsers (Kotlin Multiplatform)
+shared/               # Shared Kotlin code (KMP)
 ```
 
 ## Testing

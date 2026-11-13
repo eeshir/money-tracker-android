@@ -260,8 +260,6 @@ The debug and release builds are **separate apps** (`com.moneytracker.app.debug`
 | `app/` | The Android app: Jetpack Compose UI, Room database, ViewModels, WorkManager jobs |
 | `parser-core/` | Pure-Kotlin bank SMS parsers (no Android dependencies, iOS-compatible) |
 | `shared/` | Kotlin Multiplatform rules: category mapping, shared use cases |
-| `iosApp/` | iOS client of the original project (not maintained in this fork) |
-| `pennywise-web/`, `relay/` | The original project's website and AI-access relay (not used by this fork's app) |
 | `docs/` | Architecture, design, backup format, migrations, parser guides, setup |
 | `scripts/` | Release and maintenance scripts |
 | `init.sh` | The verification gate: run it before calling anything done |

@@ -62,12 +62,9 @@ release.properties
 
 # Root-level deploy script may hold credentials; keep it local.
 # (Scoped to root so committed helper scripts like
-# pennywise-web/scripts/deploy.sh are still tracked.)
 /deploy.sh
 
 # Generated Docker build context for the web container (staged copy of
-# parser-core created by pennywise-web/scripts/deploy.sh).
-/pennywise-web/.parser-core/
 
 # IDE folders
 .idea
@@ -97,10 +94,8 @@ scripts/release-notes/node_modules/
 .codegraph/
 
 # iOS fastlane env (ASC key/issuer IDs)
-iosApp/fastlane/.env
 
 # fastlane run artifact (regenerated every run)
-iosApp/fastlane/report.xml
 
 # git worktrees (superpowers SDD)
 .worktrees/

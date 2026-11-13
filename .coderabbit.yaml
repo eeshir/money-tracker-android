@@ -9,5 +9,4 @@ reviews:
     - "!.github/**"
     - "!docs/**"
     - "!.idea/**"
-    - "!iosApp/**"
     - "!shared/**"

@@ -44,4 +44,4 @@ contributor credited, is at the upstream address above.
 ## Third-party
 
 Third-party libraries keep their own licences. Bundled font and code licences are kept
-next to the files they cover (for example under `pennywise-web/`).
+next to the files they cover.

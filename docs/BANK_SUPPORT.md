@@ -14,7 +14,7 @@ After adding, removing, or renaming any parser, run:
 ./scripts/update-supported-banks.sh
 ```
 
-It regenerates the JSON, the README bank table, the Play listing copy, and copies for pennywise-web. CI fails on the next push if you forget.
+It regenerates the JSON, the README bank table. CI fails on the next push if you forget.
 
 ## How an SMS becomes a transaction
 

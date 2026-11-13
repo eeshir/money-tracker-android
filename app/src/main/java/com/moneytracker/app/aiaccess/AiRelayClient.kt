@@ -27,7 +27,7 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** The relay's phone API (relay/README.md). Holds this install's device credentials. */
+/** The relay's phone API (the relay server itself is not part of this repo). Holds this install's device credentials. */
 @Singleton
 class AiRelayClient @Inject constructor(@ApplicationContext context: Context) {
 
