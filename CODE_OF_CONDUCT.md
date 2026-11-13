@@ -1,6 +1,6 @@
 # Code of Conduct
 
-This project is committed to a welcoming, safe, and inclusive community. We expect all participants to follow this Code of Conduct in all project spaces, including GitHub and our Discord server.
+This project is committed to a welcoming, safe, and inclusive community. We expect all participants to follow this Code of Conduct in all project spaces, including GitHub issues, discussions and pull requests.
 
 ## Our Pledge
 
