@@ -125,7 +125,7 @@ class AiRelayClient @Inject constructor(@ApplicationContext context: Context) {
     }
 
     companion object {
-        const val DEFAULT_RELAY_URL = "https://ai.pennywise.zynth.dev"
+        const val DEFAULT_RELAY_URL = "https://relay.invalid" // no relay ships with this fork; the feature is off
         private const val KEY_ID = "device_id"
         private const val KEY_SECRET_SEALED = "device_secret_sealed"
         private const val KEY_RELAY = "relay_url"
