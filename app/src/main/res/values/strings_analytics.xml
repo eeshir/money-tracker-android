@@ -25,7 +25,17 @@
     <string name="analytics_club_criteria_min" tools:ignore="MissingTranslation">≥%1$d payments</string>
     <string name="analytics_frequent_upi_banner" tools:ignore="MissingTranslation">Frequent UPI Payees</string>
     <string name="analytics_by_account">By Account</string>
-    <string name="analytics_by_day_of_week">By day of week</string>
+    <string name="analytics_by_month">By month</string>
+    <string name="analytics_by_month_widened">Showing the last 12 months.</string>
+    <string name="analytics_by_year_widened">Showing all time.</string>
+    <string name="analytics_by_year">By year</string>
+    <string name="analytics_calendar">Calendar</string>
+    <string name="analytics_trend_series">Spending</string>
+    <string name="analytics_calendar_filtered">Filtered</string>
+    <string name="analytics_calendar_all">All spending</string>
+    <string name="analytics_calendar_prev">Previous month</string>
+    <string name="analytics_calendar_next">Next month</string>
+    <string name="analytics_calendar_total">Total: %1$s</string>
     <string name="analytics_no_tag">No tag</string>
     <string name="analytics_tag_overlap_note">A transaction with several tags counts under each one, so tag totals can add up to more than the total.</string>
 
@@ -34,7 +44,8 @@
     <string name="analytics_group_by_merchant">By merchant</string>
     <string name="analytics_group_by_account">By account</string>
     <string name="analytics_group_by_tag">By tag</string>
-    <string name="analytics_group_by_day_of_week">By day of week</string>
+    <string name="analytics_group_by_month">By month</string>
+    <string name="analytics_group_by_year">By year</string>
     <!-- Content description of the lock beside a Pro-only grouping -->
     <string name="analytics_group_by_pro">Pro</string>
 

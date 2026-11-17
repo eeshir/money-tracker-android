@@ -427,7 +427,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     # Create GitHub release with gh CLI
     if command -v gh &> /dev/null; then
         echo "Creating GitHub release..."
+        # The app updates itself from the public releases repo, so the APKs are published there.
         gh release create "v$NEXT_VERSION" \
+            --repo "${RELEASES_REPO:-eeshir/money-tracker-android}" \
             --title "Release v$NEXT_VERSION" \
             --notes-file RELEASE_NOTES.md \
             "$STANDARD_PATH/PennyWise-v${NEXT_VERSION}-universal.apk" \
@@ -441,7 +443,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo -e "${GREEN}✅ GitHub release created${NC}"
     else
         echo -e "${YELLOW}gh CLI not found. Create release manually at:${NC}"
-        echo "https://github.com/sarim2000/pennywiseai-tracker/releases/new?tag=v$NEXT_VERSION"
+        echo "https://github.com/${RELEASES_REPO:-eeshir/money-tracker-android}/releases/new?tag=v$NEXT_VERSION"
     fi
 fi
 

@@ -54,7 +54,9 @@ class SmsTransactionProcessor @Inject constructor(
     private val tagRepository: TagRepository,
     private val ignoredAccountsStore: IgnoredAccountsStore,
     private val database: PennyWiseDatabase,
-    private val ownPayeeMirror: com.moneytracker.app.data.payees.OwnPayeeMirror
+    private val ownPayeeMirror: com.moneytracker.app.data.payees.OwnPayeeMirror,
+    private val cardRefundLinker: com.moneytracker.app.data.refunds.CardRefundLinker,
+    private val cardPaymentDeduper: com.moneytracker.app.data.statement.CardPaymentDeduper
 ) {
     private val bankAccountMerges = BankAccountMergeStore(appContext)
     companion object {
@@ -113,7 +115,11 @@ class SmsTransactionProcessor @Inject constructor(
             val result = saveParsedTransaction(parsedTransaction, body)
             // A payment to one of the person's own accounts: pair it with the credit on the
             // other side, or record it (a few days back is enough for a live SMS).
-            if (result.success) runCatching { ownPayeeMirror.applyAll(sinceDays = 10) }
+            if (result.success) {
+                runCatching { ownPayeeMirror.applyAll(sinceDays = 10) }
+                runCatching { cardPaymentDeduper.run() }
+                runCatching { cardRefundLinker.linkAll() }
+            }
             return result
         } catch (e: Exception) {
             Log.e(TAG, "Error processing SMS", e)

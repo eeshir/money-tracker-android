@@ -28,6 +28,7 @@ import com.moneytracker.app.presentation.common.getCycleAwareDateRange
 import com.moneytracker.app.presentation.common.getDateRangeForPeriod
 import com.moneytracker.app.utils.CurrencyUtils
 import com.moneytracker.app.utils.Money
+import com.moneytracker.app.utils.sumByCurrency
 import com.moneytracker.app.utils.forTotals
 import com.moneytracker.app.R
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -414,7 +415,7 @@ class AnalyticsViewModel @Inject constructor(
             extra.profileId,
             extra.accountFilter
         )
-    }.combine(accountBalanceRepository.getAllLatestBalances()) { fs, balances ->
+    }.combine(groupBy) { fs, group -> fs.copy(groupBy = group) }.combine(accountBalanceRepository.getAllLatestBalances()) { fs, balances ->
         fs to balances
     }.combine(categoryIndex) { (fs, balances), index ->
         Triple(fs, balances, index)
@@ -761,22 +762,101 @@ class AnalyticsViewModel @Inject constructor(
                     }
                     .sortedByDescending { it.amount }
 
-                // Group by day of week, all seven days in the locale's week order.
-                // Refunds net off the weekday they landed on, as the trend nets per day.
+                // Group by month and by year, newest first. A month or year list can't be built
+                // from "this month" or "last month", so under those it looks further back (the
+                // last 12 months, or all time) with the same filters; a wider period is used as
+                // chosen. Refunds net off the day they landed on, as the trend nets per day.
                 val locale = java.util.Locale.getDefault()
-                val weekdayRefunds = refunds.byDay.entries
-                    .groupBy({ it.key.dayOfWeek }, { it.value })
-                    .mapValues { (_, amounts) -> amounts.fold(BigDecimal.ZERO, BigDecimal::add) }
-                val byWeekday = groupTotals(counted) { listOf(it.dateTime.dayOfWeek) }
-                val dayOfWeekBreakdown = if (counted.isEmpty()) emptyList() else weekdayOrder(locale).map { day ->
-                    val group = byWeekday[day]
-                    val amount = netOf(group?.amountIn(displayCurrency) ?: BigDecimal.ZERO, weekdayRefunds[day])
-                    TagData(
-                        name = day.getDisplayName(java.time.format.TextStyle.FULL, locale),
-                        amount = amount,
-                        percentage = shareOf(amount, totalSpending),
-                        transactionCount = group?.rows?.size ?: 0
+                val widenSpan = filterState.period.followsBudgetCycle && filterState.groupBy != AnalyticsGroupBy.CATEGORY &&
+                    (filterState.groupBy == AnalyticsGroupBy.MONTH || filterState.groupBy == AnalyticsGroupBy.YEAR)
+                var wideCounted = counted
+                var wideRefundsByDay = refunds.byDay
+                if (widenSpan) {
+                    val today = LocalDate.now()
+                    val from = if (filterState.groupBy == AnalyticsGroupBy.MONTH) today.withDayOfMonth(1).minusMonths(11)
+                    else LocalDate.of(2000, 1, 1)
+                    val wideRows = scopeTransactions(
+                        if (isUnified) transactionRepository.getTransactionsWithSplitsFiltered(from, today).first()
+                        else transactionRepository.getTransactionsWithSplitsFiltered(from, today, displayCurrency).first()
                     )
+                    val typed = analyticsRowsFor(wideRows, filterState.typeFilter)
+                    val byCategory = categoryFilterSet?.let { set ->
+                        typed.filter { tw -> tw.getAmountByCategory().keys.map { it.ifEmpty { "Others" } }.any { it in set } }
+                    } ?: typed
+                    wideCounted = byCategory.map { it.transaction }.mapNotNull { tx ->
+                        if (isUnified) {
+                            currencyConversionService.convertAmountOrNull(tx.amount, tx.currency, displayCurrency)
+                                ?.let { CountedRow(tx, Money(it, displayCurrency)) }
+                        } else CountedRow(tx, Money(tx.amount, tx.currency))
+                    }
+                    wideRefundsByDay = refundNetting(
+                        wideRows, filterState.typeFilter, categoryFilterSet, parentOf, clubbingConfig.aliases
+                    ) { tx ->
+                        if (isUnified) currencyConversionService.convertAmountOrNull(tx.amount, tx.currency, displayCurrency)
+                        else tx.amount
+                    }.byDay
+                }
+                fun periodBreakdown(
+                    keyOf: (LocalDate) -> java.time.temporal.Temporal,
+                    format: java.time.format.DateTimeFormatter
+                ): List<TagData> {
+                    if (wideCounted.isEmpty()) return emptyList()
+                    val byPeriod = wideCounted.groupBy { keyOf(it.tx.dateTime.toLocalDate()) }
+                    val periodRefunds = wideRefundsByDay.entries
+                        .groupBy({ keyOf(it.key) }, { it.value })
+                        .mapValues { (_, amounts) -> amounts.fold(BigDecimal.ZERO, BigDecimal::add) }
+                    val amounts = byPeriod.mapValues { (key, rows) ->
+                        val gross = rows.sumByCurrency({ it.money.currency }, { it.money.amount })[displayCurrency]?.amount
+                            ?: BigDecimal.ZERO
+                        netOf(gross, periodRefunds[key])
+                    }
+                    val total = amounts.values.fold(BigDecimal.ZERO, BigDecimal::add)
+                    return byPeriod.keys.sortedByDescending { it.toString() }.map { key ->
+                        val rows = byPeriod.getValue(key)
+                        TagData(
+                            name = format.format(key),
+                            amount = amounts.getValue(key),
+                            percentage = shareOf(amounts.getValue(key), total),
+                            transactionCount = rows.size,
+                            transactions = rows.map { it.tx }
+                        )
+                    }
+                }
+                val monthBreakdown = periodBreakdown(
+                    { java.time.YearMonth.from(it) },
+                    java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy", locale)
+                )
+                val yearBreakdown = periodBreakdown(
+                    { java.time.Year.from(it) },
+                    java.time.format.DateTimeFormatter.ofPattern("yyyy", locale)
+                )
+
+                // Per-day spend for the calendar: the filtered view (this view's category
+                // filter applied), and all spending (type view only). Refunds net per day.
+                fun dailySpend(rows: List<CountedRow>, refundsByDay: Map<LocalDate, BigDecimal>): Map<LocalDate, BigDecimal> {
+                    val gross = rows.groupBy { it.tx.dateTime.toLocalDate() }.mapValues { (_, day) ->
+                        day.sumByCurrency({ it.money.currency }, { it.money.amount })[displayCurrency]?.amount ?: BigDecimal.ZERO
+                    }
+                    return (gross.keys + refundsByDay.keys).associateWith { netOf(gross[it] ?: BigDecimal.ZERO, refundsByDay[it]) }
+                        .filterValues { it > BigDecimal.ZERO }
+                }
+                val dailyFiltered = dailySpend(counted, refunds.byDay)
+                // With no category filter, "all spending" is the filtered view: reuse it rather
+                // than converting and netting every row a second time.
+                val dailyAll = if (categoryFilterSet == null) dailyFiltered else {
+                    val allRefunds = refundNetting(
+                        allTransactionsWithSplits, filterState.typeFilter, null, parentOf, clubbingConfig.aliases
+                    ) { tx ->
+                        if (isUnified) currencyConversionService.convertAmountOrNull(tx.amount, tx.currency, displayCurrency)
+                        else tx.amount
+                    }
+                    val countedAll = filteredTransactionsWithSplits.map { it.transaction }.mapNotNull { tx ->
+                        if (isUnified) {
+                            currencyConversionService.convertAmountOrNull(tx.amount, tx.currency, displayCurrency)
+                                ?.let { CountedRow(tx, Money(it, displayCurrency)) }
+                        } else CountedRow(tx, Money(tx.amount, tx.currency))
+                    }
+                    dailySpend(countedAll, allRefunds.byDay)
                 }
 
                 // Calculate average amount — divide by the converted count so the
@@ -830,7 +910,11 @@ class AnalyticsViewModel @Inject constructor(
                     accountBreakdown = accountBreakdown,
                     tagBreakdown = tagBreakdown,
                     tagsOverlap = tagsOverlap,
-                    dayOfWeekBreakdown = dayOfWeekBreakdown,
+                    breakdownWidened = widenSpan,
+                    monthBreakdown = monthBreakdown,
+                    yearBreakdown = yearBreakdown,
+                    dailySpendFiltered = dailyFiltered,
+                    dailySpendAll = dailyAll,
                     forecast = forecast
                 )
             }
@@ -1050,7 +1134,8 @@ private data class FilterState(
     val isUnifiedMode: Boolean = false,
     val categoryFilter: String? = null,
     val profileId: Long? = null,
-    val accountFilter: String? = null
+    val accountFilter: String? = null,
+    val groupBy: AnalyticsGroupBy = AnalyticsGroupBy.CATEGORY
 )
 
 /**
@@ -1088,8 +1173,14 @@ data class AnalyticsUiState(
     // A counted row carries several tags, so the tag totals can add up to more
     // than the total; the tag view says so in a footnote (#422).
     val tagsOverlap: Boolean = false,
-    // Mon–Sun in the locale's week order; reuses TagData's name/amount/share shape.
-    val dayOfWeekBreakdown: List<TagData> = emptyList(),
+    // Newest first; reuse TagData's name/amount/share shape.
+    // True when a month/year list reaches beyond the chosen period (This/Last month) to be meaningful.
+    val breakdownWidened: Boolean = false,
+    val monthBreakdown: List<TagData> = emptyList(),
+    val yearBreakdown: List<TagData> = emptyList(),
+    // Net spend per day for the calendar: this view's filters, and all spending.
+    val dailySpendFiltered: Map<LocalDate, BigDecimal> = emptyMap(),
+    val dailySpendAll: Map<LocalDate, BigDecimal> = emptyMap(),
     val forecast: SpendForecast? = null
 )
 

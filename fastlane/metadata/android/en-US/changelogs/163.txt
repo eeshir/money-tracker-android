@@ -1,0 +1,4 @@
+• Analytics: daily-spend calendar, by-month and by-year views, new line chart where only the dots respond to touch.
+• Card refunds link to the purchase they reverse; a card payment seen in a statement and an SMS counts once.
+• In-app updates from GitHub releases (checked against SHA-256 and the app signature).
+• Settings: gear on Home, grouped and collapsible sections. Compact Import Statement page.

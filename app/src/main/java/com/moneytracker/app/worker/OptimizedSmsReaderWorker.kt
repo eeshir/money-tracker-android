@@ -87,7 +87,9 @@ class OptimizedSmsReaderWorker @AssistedInject constructor(
     private val ruleEngine: RuleEngine,
     private val tagRepository: TagRepository,
     private val generateIncomeAutopayUseCase: com.moneytracker.app.domain.usecase.GenerateIncomeAutopayUseCase,
-    private val ownPayeeMirror: com.moneytracker.app.data.payees.OwnPayeeMirror
+    private val ownPayeeMirror: com.moneytracker.app.data.payees.OwnPayeeMirror,
+    private val cardRefundLinker: com.moneytracker.app.data.refunds.CardRefundLinker,
+    private val cardPaymentDeduper: com.moneytracker.app.data.statement.CardPaymentDeduper
 ) : CoroutineWorker(appContext, workerParams) {
     private val bankAccountMerges = BankAccountMergeStore(appContext)
 
@@ -466,6 +468,8 @@ class OptimizedSmsReaderWorker @AssistedInject constructor(
             } catch (e: Exception) {
                 Log.e(TAG, "Own-account payee rules failed: ${e.message}", e)
             }
+            runCatching { cardPaymentDeduper.run() }
+            runCatching { cardRefundLinker.linkAll() }
             reportProgress(stats)
             // WorkManager clears `progress` once work finishes, so a caller
             // reading the result on SUCCEEDED saw every count as 0 — onboarding

@@ -145,6 +145,8 @@ fun SpendingBarChart(
         val maxLabels = (chartWidth / (typicalLabelWidth + minGap)).toInt().coerceAtLeast(2)
         val labelStep = if (barCount > maxLabels) ceil(barCount.toFloat() / maxLabels).toInt() else 1
 
+        var lastValueRight = Float.NEGATIVE_INFINITY
+        var lastLabelRight = Float.NEGATIVE_INFINITY
         chartData.forEachIndexed { index, bar ->
             val barHeight = ((bar.value / maxValue) * chartHeight * progress).toFloat()
             val x = startOffset + index * (barThickness + 8.dp.toPx())
@@ -169,7 +171,8 @@ fun SpendingBarChart(
                 val maxLabelX = size.width - 4.dp.toPx() - valueMeasured.size.width
                 val labelX = rawLabelX.coerceIn(minLabelX, maxLabelX)
                 val labelY = barTop - 4.dp.toPx() - valueMeasured.size.height
-                if (labelY >= 0f) {
+                if (labelY >= 0f && labelX > lastValueRight + 4.dp.toPx()) {
+                    lastValueRight = labelX + valueMeasured.size.width
                     drawText(
                         textLayoutResult = valueMeasured,
                         topLeft = Offset(mx(labelX, valueMeasured.size.width.toFloat()), labelY)
@@ -182,7 +185,8 @@ fun SpendingBarChart(
                 val labelMeasured = textMeasurer.measure(bar.label, labelStyle)
                 val labelX = x + barThickness / 2f - labelMeasured.size.width / 2f
                 val labelY = chartBottom + 8.dp.toPx()
-                if (labelY + labelMeasured.size.height <= size.height) {
+                if (labelY + labelMeasured.size.height <= size.height && labelX > lastLabelRight + 6.dp.toPx()) {
+                    lastLabelRight = labelX + labelMeasured.size.width
                     drawText(
                         textLayoutResult = labelMeasured,
                         topLeft = Offset(mx(labelX, labelMeasured.size.width.toFloat()), labelY)

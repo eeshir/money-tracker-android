@@ -19,4 +19,7 @@
 
     <uses-permission android:name="com.android.vending.BILLING" />
 
+    <!-- Lets the in-app updater hand a downloaded, verified update to Android's installer. Standard flavor only. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
 </manifest>

@@ -281,71 +281,39 @@ fun ImportStatementScreen(
 
 @Composable
 private fun IdleContent(onSelectPdf: () -> Unit, onSelectSpreadsheet: () -> Unit) {
-    Spacer(modifier = Modifier.height(Spacing.xl))
-
-    Icon(
-        imageVector = Icons.Default.Description,
-        contentDescription = null,
-        modifier = Modifier.size(80.dp),
-        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-    )
-
-    Spacer(modifier = Modifier.height(Spacing.md))
-
-    Text(
-        text = stringResource(R.string.import_statement_title),
-        style = MaterialTheme.typography.headlineSmall,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-
     Text(
         text = stringResource(R.string.import_statement_description),
-        style = MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.padding(horizontal = Spacing.md)
+        modifier = Modifier.fillMaxWidth()
     )
 
-    Spacer(modifier = Modifier.height(Spacing.lg))
-
-    Button(
-        onClick = onSelectPdf,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(Dimensions.Component.buttonHeight),
-        shape = RoundedCornerShape(Dimensions.CornerRadius.large)
-    ) {
-        Icon(
-            imageVector = Icons.Default.PictureAsPdf,
-            contentDescription = null,
-            modifier = Modifier.size(Dimensions.Icon.medium)
-        )
-        Spacer(modifier = Modifier.width(Spacing.sm))
-        Text(stringResource(R.string.import_statement_select_pdf))
-    }
-
-    FilledTonalButton(
-        onClick = onSelectSpreadsheet,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(Dimensions.Component.buttonHeight),
-        shape = RoundedCornerShape(Dimensions.CornerRadius.large)
-    ) {
-        Icon(
-            imageVector = Icons.Default.TableChart,
-            contentDescription = null,
-            modifier = Modifier.size(Dimensions.Icon.medium)
-        )
-        Spacer(modifier = Modifier.width(Spacing.sm))
-        Text(stringResource(R.string.import_statement_select_spreadsheet))
+    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = onSelectPdf,
+            modifier = Modifier.weight(1f).height(Dimensions.Component.buttonHeight),
+            shape = RoundedCornerShape(Dimensions.CornerRadius.large)
+        ) {
+            Icon(Icons.Default.PictureAsPdf, contentDescription = null, modifier = Modifier.size(Dimensions.Icon.medium))
+            Spacer(modifier = Modifier.width(Spacing.xs))
+            Text(stringResource(R.string.import_statement_pick_pdf), maxLines = 1, softWrap = false)
+        }
+        FilledTonalButton(
+            onClick = onSelectSpreadsheet,
+            modifier = Modifier.weight(1f).height(Dimensions.Component.buttonHeight),
+            shape = RoundedCornerShape(Dimensions.CornerRadius.large)
+        ) {
+            Icon(Icons.Default.TableChart, contentDescription = null, modifier = Modifier.size(Dimensions.Icon.medium))
+            Spacer(modifier = Modifier.width(Spacing.xs))
+            Text(stringResource(R.string.import_statement_pick_sheet), maxLines = 1, softWrap = false)
+        }
     }
 
     Text(
         text = stringResource(R.string.import_statement_xls_hint),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center
+        modifier = Modifier.fillMaxWidth()
     )
 }
 

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +58,7 @@ fun GreetingCard(
     profileBackgroundColor: Int = 0,
     onAvatarClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
+    onSettingsClick: (() -> Unit)? = null,
     profiles: List<ProfileEntity> = emptyList(),
     selectedProfileId: Long? = null,
     onProfileSelected: (Long?) -> Unit = {},
@@ -211,6 +213,17 @@ fun GreetingCard(
                     selectedProfileId = selectedProfileId,
                     onProfileSelected = onProfileSelected,
                     onDismiss = { showProfileMenu = false }
+                )
+            }
+        }
+
+        // Settings gear: visible, so a new user does not have to find it behind the menu.
+        if (onSettingsClick != null) {
+            IconButton(onClick = onSettingsClick, modifier = Modifier.size(48.dp)) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.home_settings_button),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

@@ -62,8 +62,10 @@
     <!-- ══ Import statement ══ -->
     <string name="import_statement_title">Import Statement</string>
     <string name="import_statement_back">Back</string>
-    <string name="import_statement_description">Import PDF statements from SBI, HDFC, ICICI or IDBI bank accounts, HDFC, HSBC or ICICI credit cards, or Google Pay, PhonePe, Paytm and slice. You can pick several PDFs at once. Any bank\'s Excel (.xlsx) or CSV statement works too. You\'ll see what\'s new before anything is added.</string>
+    <string name="import_statement_description">PDF statements from your banks, credit cards and UPI apps, or any Excel or CSV statement. You\'ll see what\'s new before anything is added.</string>
     <string name="import_statement_select_pdf">Select PDF Statements</string>
+    <string name="import_statement_pick_pdf">PDF statement</string>
+    <string name="import_statement_pick_sheet">Excel or CSV</string>
     <string name="import_statement_batch_title">Statement %1$d of %2$d</string>
     <string name="import_statement_next">Next statement (%1$d of %2$d)</string>
     <string name="import_statement_skip">Skip this statement</string>
