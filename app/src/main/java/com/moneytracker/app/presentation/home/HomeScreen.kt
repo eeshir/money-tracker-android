@@ -54,6 +54,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -158,6 +159,11 @@ fun HomeScreen(
     onFabPositioned: (Rect) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val updateViewModel: com.moneytracker.app.presentation.update.UpdateViewModel = hiltViewModel()
+    val updateState by updateViewModel.state.collectAsState()
+    val updateAvailable = updateState is com.moneytracker.app.data.update.UpdateState.Available ||
+        updateState is com.moneytracker.app.data.update.UpdateState.ReadyToInstall
+    androidx.compose.runtime.LaunchedEffect(Unit) { updateViewModel.checkQuietly() }
     val isProEntitled by viewModel.isProEntitled.collectAsState()
     val currentCycleWindow by viewModel.currentCycleWindow.collectAsState()
     var showUpgradeSheet by rememberSaveable { mutableStateOf(false) }
@@ -387,6 +393,38 @@ fun HomeScreen(
                                 onDismiss = { showProfileFilterMenu = false }
                             )
                         }
+                        // Settings button, visible without opening the menu
+                        Box(
+                            modifier = Modifier
+                                .size(Dimensions.Component.iconButton)
+                                .clip(CircleShape)
+                                .background(
+                                    color = if (blurEffects) containerColor.copy(0.5f) else containerColor,
+                                    shape = CircleShape
+                                )
+                                .clickable(
+                                    onClick = onNavigateToSettings,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = stringResource(R.string.home_settings_button),
+                                tint = MaterialTheme.colorScheme.inverseSurface,
+                                modifier = Modifier.size(Dimensions.Icon.inline)
+                            )
+                            if (updateAvailable) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(6.dp)
+                                        .size(10.dp)
+                                        .background(MaterialTheme.colorScheme.error, CircleShape)
+                                )
+                            }
+                        }
                         // More options button
                         Box(
                             modifier = Modifier
@@ -419,6 +457,7 @@ fun HomeScreen(
                         profileBackgroundColor = uiState.profileBackgroundColor,
                         onAvatarClick = onNavigateToSettings,
                         onMenuClick = { showMenuSheet = true },
+                        onSettingsClick = onNavigateToSettings,
                         profiles = uiState.profiles,
                         selectedProfileId = uiState.selectedProfileId,
                         onProfileSelected = { viewModel.updateSelectedProfile(it) },

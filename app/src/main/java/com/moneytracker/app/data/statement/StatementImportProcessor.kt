@@ -159,6 +159,19 @@ internal class StatementImportProcessor(
             decisions[i] = sameDayMatch(i, sameDay)
         }
 
+        // 5. A card bill payment's SMS can arrive days after the statement row's date; the same
+        //    amount on the same card within a few days is the same payment, not a second one.
+        for (i in decisions.indices) {
+            if (decisions[i] != null || !dateOnly[i]) continue
+            val e = entities[i]
+            if (!e.excludedFromAnalytics || e.transactionType != TransactionType.INCOME) continue
+            val window = CardPaymentPairs.WINDOW.toDays()
+            val payment = amountCandidates(i, days[i].minusDays(window), days[i].plusDays(window))
+                .firstOrNull { it.excludedFromAnalytics && !CardPaymentPairs.isStatementRow(it) } ?: continue
+            claim(payment)
+            decisions[i] = StatementRowDecision.Skip(StatementRowDecision.SkipReason.AMOUNT_DATE)
+        }
+
         return StatementImportPlan(
             parsedTransactions.indices.map { i ->
                 StatementPlanRow(parsedTransactions[i], decisions[i] ?: StatementRowDecision.Insert(entities[i]))

@@ -554,7 +554,7 @@ fun SettingsScreen(
             }
 
             // ── Data Management ──
-            SectionHeaderV2(title = stringResource(R.string.settings_data_section))
+            SectionHeaderV2(title = stringResource(R.string.settings_section_setup))
             SettingsGroup {
                 SettingsNavItem(
                     icon = Icons.Default.AccountBalance,
@@ -620,13 +620,26 @@ fun SettingsScreen(
                     position = ListItemPosition.Middle
                 )
                 SettingsNavItem(
+                    icon = Icons.Default.Star,
+                    iconBgColor = indigo_light,
+                    iconTint = indigo_dark,
+                    title = stringResource(R.string.settings_card_rewards_title),
+                    subtitle = stringResource(R.string.settings_card_rewards_subtitle),
+                    onClick = onNavigateToCardRewards,
+                    position = ListItemPosition.Bottom
+                )
+            }
+
+            CollapsibleSection(title = stringResource(R.string.settings_section_backup), startExpanded = false) {
+            SettingsGroup {
+                SettingsNavItem(
                     icon = Icons.Default.Upload,
                     iconBgColor = blue_light,
                     iconTint = blue_dark,
                     title = stringResource(R.string.settings_export_data_title),
                     subtitle = stringResource(R.string.settings_export_data_subtitle),
                     onClick = { showExportOptions = true },
-                    position = ListItemPosition.Middle
+                    position = ListItemPosition.Top
                 )
                 SettingsNavItem(
                     icon = Icons.Default.Lock,
@@ -703,8 +716,13 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_import_data_title),
                     subtitle = stringResource(R.string.settings_import_data_subtitle),
                     onClick = { importLauncher.launch("*/*") },
-                    position = ListItemPosition.Middle
+                    position = ListItemPosition.Bottom
                 )
+            }
+            }
+
+            CollapsibleSection(title = stringResource(R.string.settings_section_import), startExpanded = false) {
+            SettingsGroup {
                 SettingsNavItem(
                     icon = Icons.Default.Download,
                     iconBgColor = cyan_light,
@@ -712,7 +730,7 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_import_csv_title),
                     subtitle = stringResource(R.string.settings_import_csv_subtitle),
                     onClick = { csvImportLauncher.launch("*/*") },
-                    position = ListItemPosition.Middle
+                    position = ListItemPosition.Top
                 )
                 SettingsNavItem(
                     icon = Icons.Default.Description,
@@ -721,15 +739,6 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_import_statement_title),
                     subtitle = stringResource(R.string.settings_import_statement_subtitle),
                     onClick = onNavigateToImportStatement,
-                    position = ListItemPosition.Middle
-                )
-                SettingsNavItem(
-                    icon = Icons.Default.Star,
-                    iconBgColor = indigo_light,
-                    iconTint = indigo_dark,
-                    title = stringResource(R.string.settings_card_rewards_title),
-                    subtitle = stringResource(R.string.settings_card_rewards_subtitle),
-                    onClick = onNavigateToCardRewards,
                     position = ListItemPosition.Middle
                 )
                 SettingsNavItem(
@@ -759,7 +768,7 @@ fun SettingsScreen(
                         else -> pluralStringResource(R.plurals.settings_sms_scan_subtitle_months, smsScanMonths, smsScanMonths)
                     },
                     onClick = { showSmsScanDialog = true },
-                    position = ListItemPosition.Middle,
+                    position = ListItemPosition.Bottom,
                     trailingText = when {
                         smsScanAllTime -> stringResource(R.string.settings_sms_scan_all_time)
                         smsScanUseCustomDate -> smsScanCustomDate?.let { formatSmsScanCustomDateShort(it) }
@@ -767,6 +776,11 @@ fun SettingsScreen(
                         else -> pluralStringResource(R.plurals.settings_sms_scan_months_short, smsScanMonths, smsScanMonths)
                     }
                 )
+            }
+            }
+
+            CollapsibleSection(title = stringResource(R.string.settings_section_danger), startExpanded = false) {
+            SettingsGroup {
                 SettingsNavItem(
                     icon = Icons.Default.DeleteForever,
                     iconBgColor = red_light,
@@ -774,7 +788,7 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_delete_all_title),
                     subtitle = stringResource(R.string.settings_delete_all_subtitle),
                     onClick = { settingsViewModel.requestDeleteAllTransactions() },
-                    position = ListItemPosition.Middle
+                    position = ListItemPosition.Top
                 )
                 SettingsNavItem(
                     icon = Icons.Default.AccountBalance,
@@ -785,6 +799,7 @@ fun SettingsScreen(
                     onClick = { settingsViewModel.requestDeleteAllAccounts() },
                     position = ListItemPosition.Bottom
                 )
+            }
             }
 
             // ── Notifications ──
@@ -828,7 +843,7 @@ fun SettingsScreen(
             }
 
             // ── Developer ──
-            SectionHeaderV2(title = stringResource(R.string.settings_developer_section))
+            CollapsibleSection(title = stringResource(R.string.settings_developer_section), startExpanded = false) {
             SettingsGroup {
                 SettingsNavItem(
                     icon = Icons.Default.CloudUpload,
@@ -850,9 +865,31 @@ fun SettingsScreen(
                     position = ListItemPosition.Bottom
                 )
             }
+            }
 
             // ── Support & Community ──
-            SectionHeaderV2(title = stringResource(R.string.settings_support_section))
+            // ── App updates ──
+            SectionHeaderV2(title = stringResource(R.string.update_section))
+            SettingsGroup {
+                val update = com.moneytracker.app.presentation.update.rememberUpdateRow()
+                SettingsNavItem(
+                    icon = Icons.Default.SystemUpdate,
+                    iconBgColor = blue_light,
+                    iconTint = blue_dark,
+                    title = update.title,
+                    subtitle = update.subtitle,
+                    onClick = { update.onClick?.invoke() },
+                    position = ListItemPosition.Single
+                )
+                update.progress?.let { progress ->
+                    androidx.compose.material3.LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            CollapsibleSection(title = stringResource(R.string.settings_support_section), startExpanded = false) {
             SettingsGroup {
                 SettingsNavItem(
                     icon = Icons.AutoMirrored.Filled.Help,
@@ -888,6 +925,7 @@ fun SettingsScreen(
                     position = ListItemPosition.Bottom,
                     trailingIcon = Icons.AutoMirrored.Filled.OpenInNew
                 )
+            }
             }
 
             // App Version
@@ -1802,4 +1840,30 @@ private fun BackupPassphraseDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.backup_passphrase_cancel)) } }
     )
+}
+
+/** A settings section whose header folds its rows away, so the screen stays short; remembered per section. */
+@Composable
+private fun CollapsibleSection(
+    title: String,
+    startExpanded: Boolean,
+    content: @Composable () -> Unit
+) {
+    var expanded by androidx.compose.runtime.saveable.rememberSaveable(title) {
+        androidx.compose.runtime.mutableStateOf(startExpanded)
+    }
+    SectionHeaderV2(
+        title = title,
+        modifier = Modifier.clickable { expanded = !expanded },
+        action = {
+            Icon(
+                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    )
+    androidx.compose.animation.AnimatedVisibility(visible = expanded) {
+        androidx.compose.foundation.layout.Column { content() }
+    }
 }

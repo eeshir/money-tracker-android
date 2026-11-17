@@ -13,14 +13,15 @@ import java.util.Locale
 /**
  * What the Analytics breakdown groups by (#422). Category and merchant are the
  * views Analytics always had, and account stays free because its "By account"
- * list shipped free (#421). Tag and day of week are Pro.
+ * list shipped free (#421). Tag is Pro.
  */
 enum class AnalyticsGroupBy(val isPro: Boolean) {
     CATEGORY(false),
     MERCHANT(false),
     ACCOUNT(false),
     TAG(true),
-    DAY_OF_WEEK(true);
+    MONTH(false),
+    YEAR(false);
 
     /** This grouping when the user may see it, else Category (a lapsed Pro user falls back). */
     fun allowedFor(isProEntitled: Boolean): AnalyticsGroupBy =

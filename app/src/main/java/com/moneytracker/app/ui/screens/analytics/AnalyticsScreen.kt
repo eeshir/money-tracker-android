@@ -415,6 +415,7 @@ fun AnalyticsScreen(
                             ChartType.LINE -> BalanceChart(
                                 primaryCurrency = selectedCurrency,
                                 balanceHistory = uiState.spendingTrend,
+                                seriesLabel = stringResource(R.string.analytics_trend_series),
                                 height = 220
                             )
                             ChartType.BAR -> SpendingBarChart(
@@ -427,6 +428,20 @@ fun AnalyticsScreen(
                             )
                         }
                     }
+                }
+            }
+        }
+
+        // Calendar of daily spend, for this view's filters or all spending.
+        if (uiState.dailySpendAll.isNotEmpty() || uiState.dailySpendFiltered.isNotEmpty()) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                    SectionHeaderV2(title = stringResource(R.string.analytics_calendar))
+                    SpendingCalendar(
+                        filtered = uiState.dailySpendFiltered,
+                        all = uiState.dailySpendAll,
+                        currency = selectedCurrency
+                    )
                 }
             }
         }
@@ -577,20 +592,32 @@ fun AnalyticsScreen(
             }
         }
 
-        // Day-of-week breakdown: there's no Transactions filter for a weekday, so rows don't drill in.
-        if (groupBy == AnalyticsGroupBy.DAY_OF_WEEK && uiState.dayOfWeekBreakdown.isNotEmpty()) {
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                    SectionHeaderV2(title = stringResource(R.string.analytics_by_day_of_week))
-                    val barColor = MaterialTheme.colorScheme.primary
-                    TagBreakdownCard(
-                        tags = uiState.dayOfWeekBreakdown,
-                        currency = selectedCurrency,
-                        title = null,
-                        visibleItemCount = uiState.dayOfWeekBreakdown.size,
-                        barColor = { barColor },
-                        onTagClick = null
-                    )
+        // Month / year breakdown (no Transactions filter for a period, so rows do not drill in).
+        for ((mode, rows, titleRes) in listOf(
+            Triple(AnalyticsGroupBy.MONTH, uiState.monthBreakdown, R.string.analytics_by_month),
+            Triple(AnalyticsGroupBy.YEAR, uiState.yearBreakdown, R.string.analytics_by_year)
+        )) {
+            if (groupBy == mode && rows.isNotEmpty()) {
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                        SectionHeaderV2(title = stringResource(titleRes))
+                        if (uiState.breakdownWidened) {
+                            Text(
+                                stringResource(if (mode == AnalyticsGroupBy.MONTH) R.string.analytics_by_month_widened else R.string.analytics_by_year_widened),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        val barColor = MaterialTheme.colorScheme.primary
+                        TagBreakdownCard(
+                            tags = rows,
+                            currency = selectedCurrency,
+                            title = null,
+                            visibleItemCount = rows.size,
+                            barColor = { barColor },
+                            onTagClick = null
+                        )
+                    }
                 }
             }
         }
@@ -1201,7 +1228,8 @@ private fun AnalyticsGroupBy.label(): String = stringResource(
         AnalyticsGroupBy.MERCHANT -> R.string.analytics_group_by_merchant
         AnalyticsGroupBy.ACCOUNT -> R.string.analytics_group_by_account
         AnalyticsGroupBy.TAG -> R.string.analytics_group_by_tag
-        AnalyticsGroupBy.DAY_OF_WEEK -> R.string.analytics_group_by_day_of_week
+        AnalyticsGroupBy.MONTH -> R.string.analytics_group_by_month
+        AnalyticsGroupBy.YEAR -> R.string.analytics_group_by_year
     }
 )
 
@@ -1210,7 +1238,8 @@ private fun AnalyticsGroupBy.icon() = when (this) {
     AnalyticsGroupBy.MERCHANT -> Icons.Default.Store
     AnalyticsGroupBy.ACCOUNT -> Icons.Default.AccountBalanceWallet
     AnalyticsGroupBy.TAG -> Icons.Default.Sell
-    AnalyticsGroupBy.DAY_OF_WEEK -> Icons.Default.DateRange
+    AnalyticsGroupBy.MONTH -> Icons.Default.DateRange
+    AnalyticsGroupBy.YEAR -> Icons.Default.CalendarMonth
 }
 
 @Composable

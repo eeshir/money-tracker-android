@@ -20,6 +20,11 @@
         name="camera_temp"
         path="camera_temp/" />
 
+    <!-- Cache directory for app updates downloaded from GitHub -->
+    <cache-path
+        name="updates"
+        path="updates/" />
+
     <!-- Cache directory for rendered share cards -->
     <cache-path
         name="share_cards"

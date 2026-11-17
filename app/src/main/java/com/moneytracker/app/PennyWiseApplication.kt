@@ -51,6 +51,12 @@ class PennyWiseApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var goalRepository: com.moneytracker.app.data.repository.GoalRepository
 
+    @Inject
+    lateinit var cardPaymentDeduper: com.moneytracker.app.data.statement.CardPaymentDeduper
+
+    @Inject
+    lateinit var cardRefundLinker: com.moneytracker.app.data.refunds.CardRefundLinker
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var activityReferences = 0
     private var isInForeground = false
@@ -114,6 +120,14 @@ class PennyWiseApplication : Application(), Configuration.Provider {
             )
         }
         applicationScope.launch { webhookSyncScheduler.observeSchedule() }
+
+        // Card payments seen in both a statement and an SMS are counted once, and card
+        // refunds are linked to the purchases they reverse. Idempotent; once per launch
+        // heals data imported before these rules existed.
+        applicationScope.launch(Dispatchers.IO) {
+            runCatching { cardPaymentDeduper.run() }
+            runCatching { cardRefundLinker.linkAll() }
+        }
 
         // Goal widgets (#914): one hook for every goal write (screens, Add to goal,
         // restore, a linked transaction edited or deleted) instead of one per call site.

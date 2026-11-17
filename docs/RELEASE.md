@@ -80,3 +80,19 @@ One-shot headless release with a Play draft:
 Release notes are generated from commit messages, so use conventional commits
 (`feat:`, `fix:`, `docs:`, `chore:` …). Better commit messages → better
 auto-generated changelog and GitHub release notes.
+
+## In-app updates
+
+The standard build checks `https://api.github.com/repos/eeshir/money-tracker-android/releases/latest`
+(`AppUpdater.RELEASES_REPO`) when Home opens, at most every six hours, and from Settings > App updates.
+It offers the release's universal APK (never the F-Droid one), downloads it, and installs it only if:
+
+- the release publishes a SHA-256 (the asset's `digest`, or a `<apk>.sha256` file, which `scripts/release.sh` already uploads) and the download matches it;
+- the APK is the same app id signed with the same key as the installed app.
+
+Android still asks the person to confirm the install (and to allow this app to install apps the first time), so an update is
+one tap, not silent. Consequences for releasing:
+
+- `scripts/release.sh` publishes the GitHub release to `eeshir/money-tracker-android` (override with `RELEASES_REPO`). That repo must stay public.
+- Tags must look like `v2.50.0`; the app compares them numerically with its `versionName`.
+- Every release APK must be signed with the same keystore, or the app refuses to install it. A debug build (`.debug` app id) can check but never install.

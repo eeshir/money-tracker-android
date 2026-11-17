@@ -78,6 +78,10 @@
 
     <!-- Data Management -->
     <string name="settings_data_section">Data Management</string>
+    <string name="settings_section_setup">Your money setup</string>
+    <string name="settings_section_backup">Backup and restore</string>
+    <string name="settings_section_import">Import and messages</string>
+    <string name="settings_section_danger">Danger zone</string>
     <string name="settings_manage_accounts_title">Manage Accounts</string>
     <string name="settings_manage_accounts_subtitle">View and manage your bank accounts</string>
     <string name="settings_categories_title">Categories</string>
@@ -547,4 +551,23 @@
     <string name="backup_passphrase_save">Save</string>
     <string name="backup_passphrase_open">Restore</string>
     <string name="backup_passphrase_cancel">Cancel</string>
+
+    <!-- App updates from GitHub releases -->
+    <string name="update_section">App updates</string>
+    <string name="update_title">Check for updates</string>
+    <string name="update_check_hint">Version %1$s. Tap to check for a newer one.</string>
+    <string name="update_up_to_date">Version %1$s is the latest.</string>
+    <string name="update_unavailable">Version %1$s. This build is updated outside the app.</string>
+    <string name="update_checking">Checking…</string>
+    <string name="update_available_title">Update to %1$s</string>
+    <string name="update_tap_to_download">A new version is available. Tap to download it.</string>
+    <string name="update_downloading">Downloading…</string>
+    <string name="update_ready_title">Install %1$s</string>
+    <string name="update_tap_to_install">Downloaded and checked. Tap to install; Android will ask you to confirm.</string>
+    <string name="update_failed_network">Could not reach GitHub. Tap to try again.</string>
+    <string name="update_failed_no_release">No release found. Tap to try again.</string>
+    <string name="update_failed_no_hash">This release has no checksum, so it was not installed.</string>
+    <string name="update_failed_bad_hash">The download did not match its checksum and was discarded.</string>
+    <string name="update_failed_signature">The download is not signed like this app, so it was not installed.</string>
+    <string name="home_update_badge">Update available</string>
 </resources>

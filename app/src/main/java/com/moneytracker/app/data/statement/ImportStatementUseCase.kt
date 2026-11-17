@@ -40,6 +40,8 @@ class ImportStatementUseCase @Inject constructor(
     private val cardDueStore: CardDueStore,
     private val statementRewardStore: StatementRewardStore,
     private val ownPayeeMirror: com.moneytracker.app.data.payees.OwnPayeeMirror,
+    private val cardRefundLinker: com.moneytracker.app.data.refunds.CardRefundLinker,
+    private val cardPaymentDeduper: com.moneytracker.app.data.statement.CardPaymentDeduper,
     private val database: PennyWiseDatabase,
     @ApplicationContext private val context: Context
 ) {
@@ -318,6 +320,9 @@ class ImportStatementUseCase @Inject constructor(
             val result = commitRows(parsed, keep)
             // Rows from a statement can be the other side of a payment to one of the person's own accounts.
             runCatching { ownPayeeMirror.applyAll() }
+            // Card refunds from the statement lower the spend of the purchase they reverse.
+            runCatching { cardPaymentDeduper.run() }
+            runCatching { cardRefundLinker.linkAll() }
             result
         }
 

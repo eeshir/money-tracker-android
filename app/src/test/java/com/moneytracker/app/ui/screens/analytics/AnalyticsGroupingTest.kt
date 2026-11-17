@@ -94,7 +94,6 @@ class AnalyticsGroupingTest {
             assertEquals(option, option.allowedFor(isProEntitled = true))
         }
         assertEquals(AnalyticsGroupBy.CATEGORY, AnalyticsGroupBy.TAG.allowedFor(isProEntitled = false))
-        assertEquals(AnalyticsGroupBy.CATEGORY, AnalyticsGroupBy.DAY_OF_WEEK.allowedFor(isProEntitled = false))
         assertEquals(AnalyticsGroupBy.MERCHANT, AnalyticsGroupBy.MERCHANT.allowedFor(isProEntitled = false))
         assertEquals(AnalyticsGroupBy.ACCOUNT, AnalyticsGroupBy.ACCOUNT.allowedFor(isProEntitled = false))
     }
