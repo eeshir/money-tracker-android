@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <activity android:name="com.moneytracker.app.debug.UiVerificationActivity" android:exported="false" />
+        <!-- Debug-only: dumps saved statements' text for reader fixes. Same DUMP guard. -->
+        <receiver
+            android:name="com.moneytracker.app.debug.StatementTextProbeReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
         <!-- Debug-only fake-SMS harness; see SmsProbeReceiver. Same DUMP guard. -->
         <receiver
             android:name="com.moneytracker.app.debug.SmsProbeReceiver"

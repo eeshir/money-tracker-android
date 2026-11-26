@@ -27,7 +27,7 @@ class CardStatementPdfParserTest {
         18/09/2026| 20:11 CC PAYMENT 222222222222 SOMEAPP (Ref# 02222222222222222222) +  C 3,000.00 l
         01/10/2026| 13:45 SAMPLE STORE CITY (Ref# 03333333333333333333)  C 1,205.00 l
         CURRENT DUES
-        C1,250.40
+        C200.40
         AVAILABLE CREDIT LIMIT AVAILABLE CASH LIMIT
         C50,000 C40,000 C20,000
         MoneyBack+ Credit Card Statement
@@ -53,7 +53,7 @@ class CardStatementPdfParserTest {
 
         val summary = parser.summary(hdfc)!!
         assertEquals(LocalDate.of(2026, 10, 17), summary.statementDate)
-        assertEquals(money("1250.40"), summary.outstanding)
+        assertEquals(money("1250.00"), summary.outstanding)
         assertEquals(money("200.00"), summary.minimumDue)
         assertEquals(LocalDate.of(2026, 11, 6), summary.dueDate)
         assertEquals(money("50000"), summary.creditLimit)
@@ -149,9 +149,9 @@ class CardStatementPdfParserTest {
     }
 
     @Test fun `a card owes its limit minus what is available, which counts unbilled EMI principal`() {
-        // Total amount due 1,250.40, but 12,000 of EMI principal still to bill also counts against the limit.
+        // Total amount due 1,250.00, but 12,000 of EMI principal still to bill also counts against the limit.
         val summary = HdfcCreditCardPdfParser().summary(hdfc)!!
-        assertEquals(money("1250.40"), summary.outstanding)
+        assertEquals(money("1250.00"), summary.outstanding)
         assertEquals(money("10000"), summary.owed)
     }
 

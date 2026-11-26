@@ -34,7 +34,12 @@ object CardRewardPresets {
     }
 
     /**
-     * HDFC Tata Neu Plus (terms as the card owner reported them; not yet checked against a statement): rewards come as
+     * HDFC Tata Neu Plus. Checked against a statement, which prints each row's base NeuCoins (1%) and
+     * a "Bonus NeuCoins Summary" (a partner's bonus, which makes
+     * partners 2% in all). UPI is 1% in all, as the card owner confirmed: the Tata Neu app credits 0.75% itself and the statement
+     * shows only the other 0.25%, so a UPI row always reads about three-quarters short on the
+     * statement. The 5% extra for a partner purchase made in the Tata Neu app is also credited by Tata Neu and never printed.
+     * Terms as the card owner reported them: rewards come as
      * NeuCoins, one worth Rs 1. 1% on everything else, including UPI payments to merchants (a UPI payment from this card
      * shows only the merchant's UPI id in the SMS, so it always lands here). 2% NeuCoins on Tata partner brands, plus a further
      * 5% when the purchase is made through the Tata Neu app: 7% in all. The SMS does not say whether the app was used, so
@@ -47,6 +52,10 @@ object CardRewardPresets {
         baseRatePercent = "1",
         pointValue = "1",
         rules = listOf(
+            // First, so it wins over the partner list. Only what a statement showed: an "EMI TITAN" purchase
+            // earned only the 1% base and no partner bonus. Not a general "emi" word, which
+            // would also match "chemist" and "premium".
+            RewardRule("EMI at Titan", listOf("emi titan"), "1"),
             RewardRule(
                 "Tata Neu partners",
                 listOf(

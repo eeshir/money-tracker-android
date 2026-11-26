@@ -1,0 +1,3 @@
+• HDFC card statements: the amount to pay is now the total amount due. It was showing the minimum due (the statement's "current dues") for every HDFC card.
+• Tata Neu Plus: NeuCoins on each statement row are read and kept out of merchant names, and the statement's NeuCoins earned total is read.
+• Tata Neu rewards: an EMI purchase at Titan earns the 1% base only.

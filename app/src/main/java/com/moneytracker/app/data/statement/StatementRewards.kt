@@ -75,6 +75,8 @@ internal object StatementRewardText {
         return picked.take(40)
     }
 
+    private val NEUCOINS_TABLE = Regex("""Adjusted/Lapsed\s+(\d[\d,]*)\s+(\d[\d,]*)\s+(\d[\d,]*)\s+(\d[\d,]*)""")
+
     private val CASHBACK_CREDIT = Regex("""(?im)^\s*\d{2}[A-Z]{3}\s+CASHBACK CREDIT\s+(\d[\d,]*\.\d{2})\s*CR""")
 
     /** Cashback credited as rows in the statement (HSBC): their sum, or null when there are none. */
@@ -84,6 +86,9 @@ internal object StatementRewardText {
 
     /** (earned figure, true when it is points rather than a cashback amount), or null when none is found. */
     fun earned(text: String): Pair<String, Boolean>? {
+        // Tata Neu (HDFC): headings "Opening NeuCoins ... NeuCoins Earned (Base+Bonus) ... Transferred ... Adjusted/Lapsed",
+        // then one row of four figures: opening, earned, transferred, adjusted.
+        NEUCOINS_TABLE.find(text)?.let { return it.groupValues[2].replace(",", "") to true }
         for (p in SENTENCES) {
             val m = p.find(text) ?: continue
             val isPoints = !m.value.contains("cash", ignoreCase = true)
