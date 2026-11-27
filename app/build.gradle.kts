@@ -21,8 +21,8 @@ android {
         applicationId = "com.moneytracker.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 164
-        versionName = "2.49.1"
+        versionCode = 165
+        versionName = "2.49.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         

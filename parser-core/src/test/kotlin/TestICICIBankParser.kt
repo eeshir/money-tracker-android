@@ -93,9 +93,44 @@ class ICICIBankParserTest {
                 shouldParse = false
             ),
             ParserTestCase(
+                // Read so it lowers what the card owes; the app keeps card payments out of spending and income.
                 name = "Credit card bill payment",
                 message = "Payment of Rs 26,266.00 has been received on your ICICI Bank Credit Card XX9006 through Bharat Bill Payment System on 06-DEC-25.",
                 sender = "AD-ICICIT-S",
+                expected = ExpectedTransaction(
+                    amount = BigDecimal("26266.00"),
+                    currency = "INR",
+                    type = TransactionType.INCOME,
+                    accountLast4 = "9006",
+                    merchant = "Credit Card Payment"
+                )
+            ),
+            ParserTestCase(
+                name = "Credit card bill payment naming the card account",
+                message = "Dear Customer, Payment of INR 1,234.00 has been received on your ICICI Bank Credit Card Account 4xxx1111 on 01-SEP-26.Thank you.",
+                sender = "JD-ICICIT-S",
+                expected = ExpectedTransaction(
+                    amount = BigDecimal("1234.00"),
+                    currency = "INR",
+                    type = TransactionType.INCOME,
+                    accountLast4 = "1111"
+                )
+            ),
+            ParserTestCase(
+                name = "Dollars sent abroad are an investment",
+                message = "ICICI Bank Acc XX111 debited Rs. 9,500.00 on 18-Nov-26 InfoNRS*USD100.00.Avl Bal Rs. 1,000.00.To dispute call 18002662 or SMS BLOCK 111 to 9215676766",
+                sender = "BP-ICICIT-S",
+                expected = ExpectedTransaction(
+                    amount = BigDecimal("9500.00"),
+                    currency = "INR",
+                    type = TransactionType.INVESTMENT,
+                    merchant = "Overseas Transfer (USD)"
+                )
+            ),
+            ParserTestCase(
+                name = "Card balance moved to savings is not a transaction",
+                message = "Refund of Rs 1,000.00 from ICICI Bank Credit Card XX1111 to Savings Account XX2222 has been successfully transferred.",
+                sender = "JD-ICICIT-S",
                 shouldParse = false
             ),
             ParserTestCase(

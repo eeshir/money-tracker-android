@@ -38,6 +38,8 @@ class BackupExtras @Inject constructor(
     private val cardRewardStore: CardRewardStore,
     private val rewardOverrideStore: RewardOverrideStore,
     private val rewardsUiPrefs: RewardsUiPrefs,
+    private val sharedLimitStore: com.moneytracker.app.data.accounts.SharedLimitStore,
+    private val separateRowStore: com.moneytracker.app.data.statement.SeparateRowStore,
     private val recentSplitContacts: RecentSplitContacts
 ) {
 
@@ -64,7 +66,9 @@ class BackupExtras @Inject constructor(
         overrides = rewardOverrideStore.rates.value
             .filterKeys { it in transactionIds }
             .map { (id, rate) -> BackupRewardOverride(transactionId = id, ratePercent = rate) },
-        advancedScreen = rewardsUiPrefs.advanced.value
+        advancedScreen = rewardsUiPrefs.advanced.value,
+        sharedLimitBanks = sharedLimitStore.banks.value.sorted(),
+        separateRows = separateRowStore.hashes.value.sorted()
     )
 
     fun collectRecentSplitContacts(): List<String> = recentSplitContacts.names.value
@@ -144,6 +148,8 @@ class BackupExtras @Inject constructor(
             rewards.overrides.mapNotNull { o -> transactionIdMap[o.transactionId]?.let { it to o.ratePercent } }.toMap()
         )
         rewards.advancedScreen?.let { rewardsUiPrefs.setAdvanced(it) }
+        sharedLimitStore.restore(rewards.sharedLimitBanks)
+        separateRowStore.keep(rewards.separateRows)
     }
 
     fun restoreRecentSplitContacts(names: List<String>) {

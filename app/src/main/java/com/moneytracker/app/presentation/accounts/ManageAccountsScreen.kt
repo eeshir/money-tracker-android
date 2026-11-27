@@ -60,6 +60,7 @@ fun ManageAccountsScreen(
     viewModel: ManageAccountsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val sharedLimitBanks by viewModel.sharedLimitBanks.collectAsState()
     var showUpdateDialog by remember { mutableStateOf(false) }
     var selectedAccount by remember { mutableStateOf<Pair<String, String>?>(null) }
     var selectedAccountEntity by remember { mutableStateOf<com.moneytracker.app.data.database.entity.AccountBalanceEntity?>(null) }
@@ -389,6 +390,9 @@ fun ManageAccountsScreen(
                     items(visibleCreditCards) { card ->
                         CreditCardItem(
                             card = card,
+                            allCreditCards = visibleCreditCards + hiddenCreditCards,
+                            sharedLimitBanks = sharedLimitBanks,
+                            onSharedLimitChange = { viewModel.setSharedLimit(card.bankName, it) },
                             isHidden = false,
                             onToggleVisibility = { ignoreAccount(card) },
                             onUpdateBalance = {
@@ -517,6 +521,9 @@ fun ManageAccountsScreen(
                         items(hiddenCreditCards) { card ->
                             CreditCardItem(
                                 card = card,
+                                allCreditCards = visibleCreditCards + hiddenCreditCards,
+                                sharedLimitBanks = sharedLimitBanks,
+                                onSharedLimitChange = { viewModel.setSharedLimit(card.bankName, it) },
                                 isHidden = true,
                                 onToggleVisibility = {
                                     viewModel.toggleAccountVisibility(card.bankName, card.accountLast4)
@@ -704,6 +711,9 @@ fun ManageAccountsScreen(
 @Composable
 private fun CreditCardItem(
     card: com.moneytracker.app.data.database.entity.AccountBalanceEntity,
+    allCreditCards: List<com.moneytracker.app.data.database.entity.AccountBalanceEntity>,
+    sharedLimitBanks: Set<String>,
+    onSharedLimitChange: (Boolean) -> Unit,
     isHidden: Boolean,
     onToggleVisibility: () -> Unit,
     onUpdateBalance: () -> Unit,
@@ -714,8 +724,11 @@ private fun CreditCardItem(
 ) {
     var showStatementDayDialog by remember { mutableStateOf(false) }
     val isManualAccount = card.sourceType == "MANUAL"
-    val available = (card.creditLimit ?: BigDecimal.ZERO) - card.balance
-    val utilization = if (card.creditLimit != null && card.creditLimit > BigDecimal.ZERO) {
+    val pool = com.moneytracker.app.data.accounts.SharedLimits.poolOf(card, allCreditCards, sharedLimitBanks)
+    val canShare = com.moneytracker.app.data.accounts.SharedLimits.siblings(card, allCreditCards).size > 1
+    val shownLimit = pool?.limit ?: card.creditLimit ?: BigDecimal.ZERO
+    val available = pool?.available ?: (shownLimit - card.balance)
+    val utilization = pool?.usedPercent ?: if (card.creditLimit != null && card.creditLimit > BigDecimal.ZERO) {
         ((card.balance.toDouble() / card.creditLimit.toDouble()) * 100).toInt()
     } else {
         0
@@ -844,7 +857,7 @@ private fun CreditCardItem(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = stringResource(R.string.manage_accounts_credit_limit),
+                        text = stringResource(if (pool != null) R.string.manage_accounts_shared_limit else R.string.manage_accounts_credit_limit),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -853,7 +866,7 @@ private fun CreditCardItem(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = CurrencyFormatter.formatCurrency(card.creditLimit ?: BigDecimal.ZERO, card.currency),
+                            text = CurrencyFormatter.formatCurrency(shownLimit, card.currency),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium
                         )
@@ -864,6 +877,35 @@ private fun CreditCardItem(
                             fontWeight = FontWeight.Medium
                         )
                     }
+                }
+            }
+
+            if (canShare) {
+                if (pool != null) {
+                    Text(
+                        text = stringResource(
+                            R.string.manage_accounts_shared_limit_used,
+                            CurrencyFormatter.formatCurrency(pool.used, card.currency),
+                            pool.cards
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.manage_accounts_shared_limit_switch, card.bankName),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(1f)
+                    )
+                    androidx.compose.material3.Switch(
+                        checked = com.moneytracker.app.data.accounts.SharedLimits.bankKey(card.bankName) in sharedLimitBanks,
+                        onCheckedChange = onSharedLimitChange
+                    )
                 }
             }
 

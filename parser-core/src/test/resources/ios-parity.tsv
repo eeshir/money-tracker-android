@@ -267,7 +267,6 @@ VM-HDFCBK-S	Auto Pay HDFC Bank NACH Mandate : Rs. 100000.00 UMRN:HDFC70317032620
 CP-HDFCBK-S	Rs.500.00 debited from A/c XX1234 on 20-Oct-25 to merchant@upi (UPI Ref No 123456789012)	EXPENSE|500.00|A/c XX1234|1234|null|HDFC Bank|INR|null|false|44d86f5d084bc24a0b22b3086aee8789
 HDFCBK	Sent Rs.15000.00 From HDFC Bank A/C *1234 To TEST MERCHANT PVT LTD On 01/01/26 Ref 567890567890 Not You? Call 18005556789/SMS BLOCK UPI to 7305556789	EXPENSE|15000.00|TEST MERCHANT|1234|null|HDFC Bank|INR|null|false|2faa2408d04b0440ac4d435b803f1aaa
 CP-HDFCBK-S	Update! INR 1.00 deposited in HDFC Bank A/c XX9999 on 30-MAR-26 for NEFT Cr-CITI0100000-ACME TECHNOLOGIES-PERSON NAME-CITIN99999999999.Avl bal INR 8.00. Cheque deposits in A/C are subject to clearing	INCOME|1.00|ACME TECHNOLOGIES|9999|8.00|HDFC Bank|INR|null|false|e4e8316c641d7549a94f4e01c9469863
-VM-HDFCBK-S	Refund initiated: Amt: Rs.34274.66 on HDFC Bank Credit Card 1111. To receive your Refund,please update your Bank details: TnC.	INCOME|34274.66|receive your|1111|null|HDFC Bank|INR|null|true|6a9c073527db6c4532050b47728c23e0
 VM-HDFCBK-S	Transaction Reversed!On HDFC Bank CREDIT Card xx5555 Amt: Rs.862.16 By AMAZON                000 On 2026-08-21:05:20:26	INCOME|862.16|AMAZON|5555|null|HDFC Bank|INR|null|true|410c1326ee56bf2487d5f061864a4eb0
 VM-HDFCBK-S	Payment Successful! Rs. 12345.67 from A/c ****4321 to ACMEPAYMENTS via HDFC Bank NetBanking. Not you?Call 18002586161	EXPENSE|12345.67|ACMEPAYMENTS|4321|null|HDFC Bank|INR|null|false|b91cbfd94fc25c57d6776a8ddd9e908b
 AD-HDFCMF-AC	Your SIP Purchase in Folio 38822412/82 under HDFC Mid Cap Fund-DG for Rs. 7,000.65 has been processed at the NAV of 224.603 for 31.169 units and 24-Feb-2026. Your smart statement https://shrtsms.in/HDFCMF/xYSrbW. Enter your PAN as the password. Sincerely, HDFCMF	INVESTMENT|7000.65|HDFC Mid Cap Fund-DG|null|null|HDFC Mutual Fund|INR|null|false|d64c56b236429f2c87b740764da574ed
@@ -291,7 +290,7 @@ AX-ICICIT-S	Your account has been debited with Rs 649.00 towards Netflix Enterta
 AX-ICICIT-S	Rs. 500.00 will be debited from your account on 05-Oct-25 for EMI payment	NONE
 AX-ICICIT-S	Your ICICI Bank Account will be debited with Rs 1,000.00 on 10-Oct-25	NONE
 AX-ICICIT-S	AutoPay: Rs 299.00 will be debited on 15-Oct-25 for Spotify subscription	NONE
-AD-ICICIT-S	Payment of Rs 26,266.00 has been received on your ICICI Bank Credit Card XX9006 through Bharat Bill Payment System on 06-DEC-25.	NONE
+AD-ICICIT-S	Payment of Rs 26,266.00 has been received on your ICICI Bank Credit Card XX9006 through Bharat Bill Payment System on 06-DEC-25.	INCOME|26266.00|Credit Card Payment|9006|null|ICICI Bank|INR|null|true|29cda191dda2ba7744177f159968a0bd
 AX-ICICIT-S	ICICI Bank Acct XX123 debited for Rs 500.00 on 01-Oct-25; merchant credited. UPI: 543210987654. Call 18002662 for dispute. Updated Bal: Rs 5,000.00	EXPENSE|500.00|merchant|123|5000.00|ICICI Bank|INR|null|false|ca9d5dab15b71f9ef9d5ef7a73d5c54c
 AX-ICICIT-S	Rs. 1,000.00 has been debited from your account XX456 for bill payment. Avl Bal: Rs 3,000.00	EXPENSE|1000.00|null|456|3000.00|ICICI Bank|INR|null|false|7b15d3c88d06e51c74f2f853862ba668
 AX-ICICIT-S	Your account has been successfully debited with Rs 250.00. Reference: TXN123456789	EXPENSE|250.00|null|null|null|ICICI Bank|INR|null|false|6fb0380334c3f9eafdc4c18094bfdf5d

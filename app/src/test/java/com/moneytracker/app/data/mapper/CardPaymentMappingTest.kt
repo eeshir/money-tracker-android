@@ -56,7 +56,8 @@ class CardPaymentMappingTest {
     @Test
     fun `the CRED app and BillDesk with a card in the message are card payments`() {
         assertTrue(parsed(TransactionType.EXPENSE, "CRED Club", "debited; CRED Club credited. UPI:123456789012").toEntity().excludedFromAnalytics)
-        assertTrue(parsed(TransactionType.EXPENSE, "Cred", "debited; Cred credited. UPI:123456789012").toEntity().excludedFromAnalytics)
+        // Plain "CRED" can be a voucher bought in the app: real spending.
+        assertFalse(parsed(TransactionType.EXPENSE, "Cred", "debited; Cred credited. UPI:123456789012").toEntity().excludedFromAnalytics)
         assertTrue(isCreditCardPayment("BILLDESK", "Payment for your credit card ending 1234 via BillDesk", TransactionType.EXPENSE.toEntityType()))
     }
 
@@ -93,5 +94,17 @@ class CardPaymentMappingTest {
         assertTrue(isIciciCardBillPay("… debited Rs. 1.00 on 01-Jan-26 InfoBIL*INFT*FAB2."))
         // "payment received" on a plain account is a person paying you, i.e. income.
         assertFalse(parsed(TransactionType.EXPENSE, "payment received", "x").toEntity().excludedFromAnalytics)
+    }
+
+    @Test
+    fun `a card's spare balance sent to the bank is not spending, and its payment SMS stays out of totals`() {
+        assertTrue(parsed(TransactionType.CREDIT, "Refund Amt Transfer to Bank Acc XX1111", "row", isFromCard = true).toEntity().excludedFromAnalytics)
+        val paid = parsed(
+            TransactionType.INCOME, "ICICI Bank Credit Card",
+            "Dear Customer, Payment of INR 400.00 has been received on your ICICI Bank Credit Card Account 4xxx1234 on 01-SEP-26.Thank you.",
+            isFromCard = true
+        ).toEntity()
+        assertTrue(paid.excludedFromAnalytics)
+        assertEquals(EntityType.INCOME, paid.transactionType)
     }
 }

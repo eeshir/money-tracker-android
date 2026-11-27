@@ -1,6 +1,7 @@
 package com.moneytracker.app.data.refunds
 
 import com.moneytracker.app.data.repository.RefundLinkRepository
+import com.moneytracker.app.data.statement.EmiConversions
 import com.moneytracker.app.data.repository.TransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -19,13 +20,25 @@ import javax.inject.Singleton
 @Singleton
 class CardRefundLinker @Inject constructor(
     private val transactionRepository: TransactionRepository,
-    private val refundLinks: RefundLinkRepository
+    private val refundLinks: RefundLinkRepository,
+    private val separateRows: com.moneytracker.app.data.statement.SeparateRowStore
 ) {
     private val lock = Mutex()
+
+    private suspend fun excludeEmiConversions() {
+        val rows = transactionRepository.getTransactionsBetweenDatesList(
+            LocalDateTime.now().minusDays(400), LocalDateTime.now().plusDays(1)
+        )
+        EmiConversions.toExclude(rows).forEach {
+            transactionRepository.updateTransaction(it.copy(excludedFromAnalytics = true, updatedAt = LocalDateTime.now()))
+        }
+    }
 
     /** Links every waiting card refund; returns how many were linked. */
     suspend fun linkAll(): Int = lock.withLock {
         withContext(Dispatchers.IO) {
+            // Before linking: a purchase turned into EMI, and refunds put against that loan, leave the totals.
+            excludeEmiConversions()
             val all = transactionRepository.getTransactionsBetweenDatesList(
                 LocalDateTime.now().minusDays(400), LocalDateTime.now().plusDays(1)
             )
@@ -34,6 +47,8 @@ class CardRefundLinker @Inject constructor(
             val roomUsed = HashMap<Long, BigDecimal>()
             var linked = 0
             for (refund in waiting) {
+                if (CardRefundMatcher.enteredByHand(refund, all)) continue
+                if (refund.transactionHash in separateRows.hashes.value) continue
                 val requests = CardRefundMatcher.plan(refund, all, roomUsed)
                 if (requests.isEmpty()) continue
                 refundLinks.beginLinking(refund.id) ?: continue

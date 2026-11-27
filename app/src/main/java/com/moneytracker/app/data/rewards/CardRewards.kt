@@ -80,7 +80,9 @@ data class TransactionReward(
     /** The statement (epoch day) that printed this purchase, when one did: it decides which cycle the purchase is in. */
     val statementDay: Long? = null,
     /** The row is a cashback the bank credited (not an estimate from a rate), e.g. HDFC SmartBuy bonus. */
-    val cashbackCredit: Boolean = false
+    val cashbackCredit: Boolean = false,
+    /** The part of [reward] paid as SmartBuy cashback in rupees, apart from the card's points. */
+    val cashbackPart: BigDecimal = BigDecimal.ZERO
 )
 
 /** Reward earned so far under one rule's cap in the current cycle; the cycle ends (and the cap resets after) [resets]. */
@@ -88,7 +90,9 @@ data class CapUsage(
     val label: String,
     val used: BigDecimal,
     val limit: BigDecimal,
-    val resets: java.time.LocalDate
+    val resets: java.time.LocalDate,
+    /** True when the cap runs by calendar month rather than by statement cycle. */
+    val calendarMonth: Boolean = false
 ) {
     val left: BigDecimal get() = limit - used
 }
@@ -154,7 +158,7 @@ object RewardCalculator {
                 val share = amount.min(expense.amount).multiply(earned.reward).divide(expense.amount, 2, RoundingMode.HALF_UP)
                 val index = program.rules.indexOfFirst { it.label == earned.ruleLabel }
                 if (index >= 0) {
-                    val slot = index to cycleOf(tx.dateTime.toLocalDate(), cycleDay)
+                    val slot = index to cycleOf(tx.dateTime.toLocalDate(), capDay(program, cycleDay))
                     used[slot] = ((used[slot] ?: BigDecimal.ZERO) - share).max(BigDecimal.ZERO)
                 }
                 back += share
@@ -163,6 +167,16 @@ object RewardCalculator {
             if (back.signum() == 0) return TransactionReward(tx, BigDecimal.ZERO, BigDecimal.ZERO, null, excluded = true, capped = false, refund = true)
             return TransactionReward(tx, back.negate(), rate, label, excluded = false, capped = false, refund = true)
         }
+
+        // HDFC SmartBuy: the 5% is shown on the purchase at once; the bank's credit for it, when it arrives,
+        // only confirms it and is not counted a second time.
+        val smartBuy = SmartBuy.appliesTo(program)
+        val marked = overrides.filterValues { it.toBigDecimalOrNull()?.compareTo(SmartBuy.RATE_PERCENT) == 0 }.keys
+        val smartBuyPaid = if (smartBuy) SmartBuy.pair(transactions.filter { it.belongsTo(program) }, marked) else emptyMap()
+        val smartBuyUsed = HashMap<YearMonth, BigDecimal>() // calendar month -> SmartBuy cashback so far
+        val countedCredits = smartBuyPaid.values.toHashSet()
+        // A refund the bank put against an EMI loan takes back no reward.
+        val loanRefunds = com.moneytracker.app.data.statement.EmiConversions.refundsPaidIntoLoan(transactions.filter { it.belongsTo(program) })
 
         val one: (TransactionEntity) -> TransactionReward = one@{ tx ->
                 val haystack = "${tx.merchantName} ${tx.category} ${tx.description.orEmpty()}".lowercase()
@@ -178,6 +192,33 @@ object RewardCalculator {
                 // Fees, taxes and interest never earn a reward on any card.
                 if (FEE_WORDS.any { haystack.contains(it) }) {
                     return@one TransactionReward(tx, BigDecimal.ZERO, BigDecimal.ZERO, null, excluded = true, capped = false, refund = refund)
+                }
+                val kind = if (smartBuy) SmartBuy.kindOf(tx) else null
+                if (kind != null) {
+                    val paid = tx.id in smartBuyPaid
+                    val rate = overridden ?: if (paid || SmartBuy.expectsCashback(kind)) SmartBuy.RATE_PERCENT else BigDecimal.ZERO
+                    // The cashback has its own cap, by calendar month; CashPoints on a partner shop are apart from it.
+                    val month = YearMonth.from(tx.dateTime.toLocalDate())
+                    val soFar = smartBuyUsed[month] ?: BigDecimal.ZERO
+                    val due = tx.amount.multiply(rate).divide(HUNDRED, 2, RoundingMode.HALF_UP)
+                    val cashback = due.min((SmartBuy.MONTHLY_CAP - soFar).max(BigDecimal.ZERO))
+                    smartBuyUsed[month] = soFar + cashback
+                    val points = if (kind == SmartBuy.Kind.PARTNER && overridden == null)
+                        SmartBuy.basePoints(tx.amount, program.pointValue?.toBigDecimalOrNull() ?: BigDecimal.ZERO)
+                    else BigDecimal.ZERO
+                    val label = when {
+                        overridden != null -> "Your rate"
+                        cashback < due -> "SmartBuy, monthly cap reached"
+                        paid -> "SmartBuy 5%, paid by bank"
+                        kind == SmartBuy.Kind.PARTNER -> "SmartBuy 5% + CashPoints"
+                        kind == SmartBuy.Kind.VOUCHER_CASHBACK -> "SmartBuy 5%"
+                        kind == SmartBuy.Kind.VOUCHER_DISCOUNT -> "SmartBuy instant discount, no cashback"
+                        else -> "SmartBuy: rate not known yet"
+                    }
+                    return@one TransactionReward(
+                        tx, cashback + points, rate, label, excluded = false, capped = cashback < due, refund = false,
+                        cashbackPart = cashback
+                    )
                 }
                 val laterFrom = program.laterExcludedFrom?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() }
                 val excludedWords = program.excludedKeywords + (if (laterFrom != null && !tx.dateTime.toLocalDate().isBefore(laterFrom)) program.laterExcludedKeywords else emptyList())
@@ -197,8 +238,10 @@ object RewardCalculator {
                 val index = program.rules.indexOfFirst { it.matches(haystack, day) }
                 val rate = overridden ?: if (index >= 0) percent(program.rules[index].ratePercent) else percent(program.baseRatePercent)
                 val cap = if (index >= 0) program.rules[index].capOn(tx.dateTime.toLocalDate()) else program.baseMonthlyCap
-                val slot = index to cycleOf(tx.dateTime.toLocalDate(), cycleDay)
-                var reward = tx.amount.multiply(rate).divide(HUNDRED, 2, RoundingMode.HALF_UP)
+                val slot = index to cycleOf(tx.dateTime.toLocalDate(), capDay(program, cycleDay))
+                // MoneyBack+ gives its points for each full Rs 200 of a purchase; a rate set by hand is taken as it is.
+                val earningSpend = if (smartBuy && overridden == null) SmartBuy.fullBlocks(tx.amount) else tx.amount
+                var reward = earningSpend.multiply(rate).divide(HUNDRED, 2, RoundingMode.HALF_UP)
                 // A card that pays points pays whole points: each purchase rounds down to a point.
                 program.pointValue?.toBigDecimalOrNull()?.takeIf { it.signum() > 0 }?.let { pv ->
                     reward = reward.divide(pv, 0, RoundingMode.DOWN).multiply(pv).setScale(2, RoundingMode.HALF_UP)
@@ -229,6 +272,7 @@ object RewardCalculator {
             }
         return transactions
             .filter { (it.belongsTo(program) || it.linkedToProgram()) && !it.isDeleted && (it.isPurchase() || it.isRefund() || it.isCashbackCredit()) }
+            .filter { it.id !in countedCredits && it.id !in loanRefunds }
             .sortedBy { it.dateTime }
             .map { tx -> (linkedRefund(tx) ?: one(tx)).also { done[tx.id] = it } }
     }
@@ -260,17 +304,31 @@ object RewardCalculator {
         program: CardRewardProgram, rewards: List<TransactionReward>, cycleDay: Int?,
         today: java.time.LocalDate = java.time.LocalDate.now()
     ): List<CapUsage> {
-        val cycle = cycleOf(today, cycleDay)
-        val resets = cycle.atDay(minOf(cycleDay ?: cycle.lengthOfMonth(), cycle.lengthOfMonth()))
-        return program.rules.mapNotNull { rule ->
+        val monthly = SmartBuy.appliesTo(program)
+        val capCycleDay = capDay(program, cycleDay)
+        val cycle = cycleOf(today, capCycleDay)
+        val resets = cycle.atDay(minOf(capCycleDay ?: cycle.lengthOfMonth(), cycle.lengthOfMonth()))
+        val smartBuyThisMonth = if (!SmartBuy.appliesTo(program)) BigDecimal.ZERO else rewards
+            .filter { YearMonth.from(it.transaction.dateTime.toLocalDate()) == YearMonth.from(today) }
+            .fold(BigDecimal.ZERO) { acc, r -> acc + r.cashbackPart }
+            .max(BigDecimal.ZERO).min(SmartBuy.MONTHLY_CAP)
+        // Discount-route vouchers pay no cashback, so they take no room here.
+        val smartBuyCap = if (!monthly) emptyList() else listOf(
+            CapUsage(SmartBuy.CAP_LABEL, smartBuyThisMonth, SmartBuy.MONTHLY_CAP, YearMonth.from(today).atEndOfMonth(), calendarMonth = true)
+        )
+        return smartBuyCap + program.rules.mapNotNull { rule ->
             val limit = rule.capOn(today)?.toBigDecimalOrNull()?.takeIf { it.signum() > 0 } ?: return@mapNotNull null
             val used = rewards
-                .filter { !it.excluded && !it.cashbackCredit && it.ruleLabel == rule.label && cycleOf(it.transaction.dateTime.toLocalDate(), cycleDay) == cycle }
+                .filter { !it.excluded && !it.cashbackCredit && it.ruleLabel == rule.label && cycleOf(it.transaction.dateTime.toLocalDate(), capCycleDay) == cycle }
                 .fold(BigDecimal.ZERO) { acc, r -> acc + r.reward }
                 .max(BigDecimal.ZERO).min(limit)
-            CapUsage(rule.label, used, limit, resets)
+            CapUsage(rule.label, used, limit, resets, calendarMonth = monthly)
         }
     }
+
+    /** The day that ends a cap period: the statement day, except on MoneyBack+, whose caps run by calendar month. */
+    internal fun capDay(program: CardRewardProgram, cycleDay: Int?): Int? =
+        if (SmartBuy.appliesTo(program)) null else cycleDay
 
     /** The day of the month the card's statements are dated, from the newest statement read. */
     fun cycleDay(entries: List<com.moneytracker.app.data.statement.StatementRewardEntry>): Int? =
@@ -319,6 +377,18 @@ class CardRewardStore @Inject constructor(
     private val prefs = context.getSharedPreferences("card_reward_programs", Context.MODE_PRIVATE)
     private val json = Json { ignoreUnknownKeys = true }
 
+    init { upgradeOnce() }
+
+    /** Saved rules are the person's own copy, so a corrected suggestion reaches them only through this, once. */
+    private fun upgradeOnce() {
+        if (prefs.getInt(KEY_UPGRADE, 0) >= RewardRuleUpgrades.VERSION) return
+        val saved = all()
+        prefs.edit().apply {
+            if (saved.isNotEmpty()) putString(KEY, json.encodeToString(saved.map(RewardRuleUpgrades::apply)))
+            putInt(KEY_UPGRADE, RewardRuleUpgrades.VERSION)
+        }.apply()
+    }
+
     fun all(): List<CardRewardProgram> =
         prefs.getString(KEY, null)
             ?.let { runCatching { json.decodeFromString<List<CardRewardProgram>>(it) }.getOrNull() }
@@ -341,7 +411,10 @@ class CardRewardStore @Inject constructor(
         if (added.isNotEmpty()) prefs.edit().putString(KEY, json.encodeToString(current + added)).apply()
     }
 
-    private companion object { const val KEY = "programs" }
+    private companion object {
+        const val KEY = "programs"
+        const val KEY_UPGRADE = "rules_upgrade"
+    }
 }
 
 /** One statement's reported rewards against the estimate for the same cycle. */
@@ -386,11 +459,12 @@ object StatementChecker {
         val end = if (e.forPreviousCycle) e.statementDate.minusMonths(1) else e.statementDate
         val start = end.minusMonths(1).plusDays(1)
         // A purchase a statement printed belongs to that statement's cycle, even when it posted a day after the cycle closed.
+        // SmartBuy cashback is rupees, not the points the statement totals; a partner shop's CashPoints are in them.
         val inCycle = rewards.filter { !it.cashbackCredit && it.transaction.currency == currency }.filter {
             val d = it.transaction.dateTime.toLocalDate()
             it.statementDay?.let { s -> s == e.statementDay } ?: (!d.isBefore(start) && !d.isAfter(end))
         }
-        val estimate = inCycle.fold(BigDecimal.ZERO) { acc, r -> acc + r.reward }
+        val estimate = inCycle.fold(BigDecimal.ZERO) { acc, r -> acc + r.reward - r.cashbackPart }
         val earned = e.earned?.toBigDecimalOrNull()
         val value = program.pointValue?.toBigDecimalOrNull()
         StatementCheck(
@@ -485,6 +559,29 @@ class ReportedRewards private constructor(
             val mine = transactions.filter { it.accountNumber == program.cardLast4 && it.bankName.orEmpty().trim().equals(program.bankName.trim(), ignoreCase = true) }
             val result = StatementReconciler.reconcile(mine, entries)
             return ReportedRewards(result.rowFor, result.unmatchedRows, value)
+        }
+    }
+}
+
+/** Rewards a statement totals beyond what its purchase rows add up to, so they belong to no one purchase. */
+data class StatementBonus(val date: java.time.LocalDate, val amount: BigDecimal) {
+    companion object {
+        /**
+         * Only Tata Neu: its statement's total is its rows plus the NeuCoins listed apart (a partner's bonus). Other
+         * cards' totals have not been checked against their rows this way.
+         */
+        fun of(program: CardRewardProgram, entries: List<com.moneytracker.app.data.statement.StatementRewardEntry>): List<StatementBonus> {
+            if ("tata neu" !in program.name.lowercase()) return emptyList()
+            val value = program.pointValue?.toBigDecimalOrNull() ?: return emptyList()
+            return entries.filter { it.isPoints && it.rows.isNotEmpty() }.mapNotNull { entry ->
+                val earned = entry.earned?.replace(",", "")?.toBigDecimalOrNull() ?: return@mapNotNull null
+                val inRows = entry.rows.fold(BigDecimal.ZERO) { sum, row ->
+                    val points = row.points.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                    if (row.credit) sum - points else sum + points
+                }
+                val extra = (earned - inRows).multiply(value)
+                if (extra.signum() > 0) StatementBonus(entry.statementDate, extra) else null
+            }
         }
     }
 }

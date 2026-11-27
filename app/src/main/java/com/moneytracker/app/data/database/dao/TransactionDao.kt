@@ -75,6 +75,10 @@ interface TransactionDao {
     suspend fun getWebhookCurrencyRemovals(currency: String, profileId: String): List<TransactionEntity>
 
     
+    /** Statement rows that were removed: each still accounts for the SMS row that stands in for it. */
+    @Query("SELECT * FROM transactions WHERE is_deleted = 1 AND (sms_sender LIKE '%PDF' OR sms_sender = 'STATEMENT')")
+    suspend fun getDeletedStatementRows(): List<TransactionEntity>
+
     @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY date_time DESC")
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 

@@ -1,0 +1,7 @@
+• HDFC MoneyBack+: SmartBuy, Swiggy, per-Rs 200 points, monthly limits.
+• EMI counts monthly; plain CRED purchases count.
+• Cards can share one credit limit.
+• ICICI card payments and dollar transfers are read.
+• Fewer SMS/statement double entries; backups keep them settled.
+• Balance-to-bank transfers and HDFC refund requests aren't money.
+• Tata Neu bonus shown; Ajio rate fixed.

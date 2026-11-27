@@ -58,6 +58,23 @@ class CardRefundMatcherTest {
         assertFalse(CardRefundMatcher.isUnlinkedMerchantRefund(tx(1, "10", "Zomato", TransactionType.INCOME, 1, excluded = true)))
     }
 
+    @Test fun `a refund already entered by hand is left alone`() {
+        val bank = tx(1, "1040.25", "Reliance Retail", TransactionType.INCOME, 2, sender = "HSBC CC PDF")
+        val manual = tx(2, "1040.25", "Ajio", TransactionType.INCOME, 11).copy(
+            bankName = "Manual Entry", accountNumber = null,
+            budgetImpactType = com.moneytracker.app.data.database.entity.BudgetImpactType.DEDUCT_SPENT
+        )
+        assertTrue(CardRefundMatcher.enteredByHand(bank, listOf(bank, manual)))
+        assertFalse(CardRefundMatcher.enteredByHand(bank, listOf(bank, manual.copy(amount = BigDecimal("900")))))
+    }
+
+    @Test fun `an HSBC BBPS statement row is a card payment, even one imported before it was recognised`() {
+        assertFalse(CardRefundMatcher.isUnlinkedMerchantRefund(tx(1, "17010.55", "BBPS PMT BBPSAZ01", TransactionType.INCOME, 2)))
+        val old = tx(1, "17010.55", "BBPS PMT BBPSAZ01", TransactionType.INCOME, 2, sender = "HSBC CC PDF")
+        val sms = tx(2, "17010.55", "credit card ending 1234", TransactionType.INCOME, 4, sender = "TX-HSBCIM-S", excluded = true)
+        assertEquals(mapOf(1L to 2L), CardPaymentPairs.duplicatesToKeepers(listOf(old, sms)))
+    }
+
     @Test fun `statement payment row is a duplicate of the sms a few days later`() {
         val statement = tx(1, "10500.75", "BBPS PMT", TransactionType.INCOME, 3, sender = "HSBC CC PDF", excluded = true)
         val sms = tx(2, "10500.75", "Credit Card Payment", TransactionType.INCOME, 6, sender = "VM-HSBCIM-S", excluded = true)

@@ -50,6 +50,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -101,6 +102,7 @@ class HomeViewModel @Inject constructor(
     private val restoreTransactionUseCase: RestoreTransactionUseCase,
     @ApplicationContext private val context: Context,
     entitlementGate: com.moneytracker.app.billing.EntitlementGate,
+    private val sharedLimits: com.moneytracker.app.data.accounts.SharedLimitStore,
 ) : ViewModel() {
 
     /**
@@ -327,6 +329,13 @@ class HomeViewModel @Inject constructor(
     }
 
     init {
+        viewModelScope.launch {
+            sharedLimits.banks.collect { banks ->
+                _uiState.update {
+                    it.copy(totalAvailableCredit = com.moneytracker.app.data.accounts.SharedLimits.totalAvailable(it.creditCards, banks))
+                }
+            }
+        }
         // Pick up payment dues from statements already on the phone.
         viewModelScope.launch { runCatching { importStatementUseCase.refreshCardDues() } }
         loadUnifiedModePreferences()
@@ -649,9 +658,7 @@ class HomeViewModel @Inject constructor(
                     if (account.currency != selectedCurrency) hasApproximateBalance = true
                 }
 
-                var totalAvailableCreditInSelectedCurrency = BigDecimal.ZERO
                 for (card in creditCards) {
-                    totalAvailableCreditInSelectedCurrency += (card.creditLimit ?: BigDecimal.ZERO) - card.balance
                     if (card.currency != selectedCurrency) hasApproximateBalance = true
                 }
 
@@ -674,7 +681,7 @@ class HomeViewModel @Inject constructor(
                     accountBalances = regularAccounts,  // Pre-converted in unified mode
                     creditCards = creditCards,           // Pre-converted in unified mode
                     totalBalance = totalBalanceInSelectedCurrency,
-                    totalAvailableCredit = totalAvailableCreditInSelectedCurrency,
+                    totalAvailableCredit = com.moneytracker.app.data.accounts.SharedLimits.totalAvailable(creditCards, sharedLimits.banks.value),
                     availableCurrencies = updatedAvailableCurrencies,
                     isBalanceReady = true,
                     isApproximateBalance = hasApproximateBalance
@@ -1141,9 +1148,7 @@ class HomeViewModel @Inject constructor(
                 totalBalance += account.balance
                 if (account.currency != selectedCurrency) hasApproximateBalance = true
             }
-            var totalAvailableCredit = BigDecimal.ZERO
             for (card in creditCards) {
-                totalAvailableCredit += (card.creditLimit ?: BigDecimal.ZERO) - card.balance
                 if (card.currency != selectedCurrency) hasApproximateBalance = true
             }
 
@@ -1151,7 +1156,7 @@ class HomeViewModel @Inject constructor(
                 accountBalances = regularAccounts,
                 creditCards = creditCards,
                 totalBalance = totalBalance,
-                totalAvailableCredit = totalAvailableCredit,
+                totalAvailableCredit = com.moneytracker.app.data.accounts.SharedLimits.totalAvailable(creditCards, sharedLimits.banks.value),
                 isBalanceReady = true,
                 isApproximateBalance = hasApproximateBalance
             )
@@ -1261,9 +1266,7 @@ class HomeViewModel @Inject constructor(
                 if (account.currency != selectedCurrency) hasApproximateBalance = true
             }
 
-            var totalAvailableCreditInSelectedCurrency = BigDecimal.ZERO
             for (card in creditCards) {
-                totalAvailableCreditInSelectedCurrency += (card.creditLimit ?: BigDecimal.ZERO) - card.balance
                 if (card.currency != selectedCurrency) hasApproximateBalance = true
             }
 
@@ -1271,7 +1274,7 @@ class HomeViewModel @Inject constructor(
                 accountBalances = regularAccounts,
                 creditCards = creditCards,
                 totalBalance = totalBalanceInSelectedCurrency,
-                totalAvailableCredit = totalAvailableCreditInSelectedCurrency,
+                totalAvailableCredit = com.moneytracker.app.data.accounts.SharedLimits.totalAvailable(creditCards, sharedLimits.banks.value),
                 isBalanceReady = true,
                 isApproximateBalance = hasApproximateBalance
             )

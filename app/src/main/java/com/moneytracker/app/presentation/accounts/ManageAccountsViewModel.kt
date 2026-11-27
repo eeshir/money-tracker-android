@@ -79,8 +79,14 @@ class ManageAccountsViewModel @Inject constructor(
     private val userPreferencesRepository: com.moneytracker.app.data.preferences.UserPreferencesRepository,
     entitlementGate: com.moneytracker.app.billing.EntitlementGate,
     private val ignoredAccountsStore: com.moneytracker.app.data.preferences.IgnoredAccountsStore,
+    private val sharedLimitStore: com.moneytracker.app.data.accounts.SharedLimitStore,
 ) : ViewModel() {
     private val bankAccountMerges = BankAccountMergeStore(context)
+
+    /** Banks whose cards share one credit limit. */
+    val sharedLimitBanks = sharedLimitStore.banks
+
+    fun setSharedLimit(bankName: String, shared: Boolean) = sharedLimitStore.setShared(bankName, shared)
 
     /**
      * Drives the Merge-accounts action — Pro-only gate. Free users still

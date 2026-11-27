@@ -23,6 +23,21 @@ object CardRefundMatcher {
 
     private val CASHBACK_WORDS = listOf("cashback", "reward", "payment", "bonus", "smartbuy", "emi", "aggregator", "interest", "fee")
 
+    /**
+     * Whether the person already recorded [refund] by hand (the same amount, within a month), typically because no
+     * SMS came and they could not wait for the statement. Linking the bank's row too would take the money off the
+     * purchase twice.
+     */
+    fun enteredByHand(refund: TransactionEntity, all: List<TransactionEntity>): Boolean = all.any {
+        it.id != refund.id && !it.isDeleted && it.transactionType == TransactionType.INCOME &&
+            it.budgetImpactType == BudgetImpactType.DEDUCT_SPENT && it.bankName == MANUAL_ENTRY &&
+            it.currency == refund.currency && it.amount.compareTo(refund.amount) == 0 &&
+            Duration.between(it.dateTime, refund.dateTime).abs() <= SAME_REFUND
+    }
+
+    private const val MANUAL_ENTRY = "Manual Entry"
+    private val SAME_REFUND: Duration = Duration.ofDays(30)
+
     /** Whether [t] is a merchant refund still waiting to be linked: not a bill payment, cashback or reward. */
     fun isUnlinkedMerchantRefund(t: TransactionEntity): Boolean {
         if (t.isDeleted || t.transactionType != TransactionType.INCOME || t.excludedFromAnalytics) return false

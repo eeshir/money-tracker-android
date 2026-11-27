@@ -25,7 +25,9 @@ object CardPaymentPairs {
     fun isStatementRow(t: TransactionEntity) = t.smsSender?.endsWith("PDF") == true
 
     fun isCardPayment(t: TransactionEntity) =
-        !t.isDeleted && t.transactionType == TransactionType.INCOME && t.excludedFromAnalytics &&
+        !t.isDeleted && t.transactionType == TransactionType.INCOME &&
+            // A statement's "BBPS PMT" row imported before it was recognised is a payment too.
+            (t.excludedFromAnalytics || (isStatementRow(t) && t.merchantName.startsWith("BBPS PMT", ignoreCase = true))) &&
             !t.accountNumber.isNullOrBlank()
 
     /** Statement-row id → the SMS row that stays, for every statement payment an SMS already records. */

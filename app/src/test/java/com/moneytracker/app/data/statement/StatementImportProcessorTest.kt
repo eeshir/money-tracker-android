@@ -265,6 +265,22 @@ class StatementImportProcessorTest {
         assertTrue(store.updated.isEmpty())
     }
 
+    @Test
+    fun `a card refund whose SMS came two days after the statement date is not added again`() = runBlocking {
+        val sms = transaction(
+            id = 9, amount = BigDecimal("150"), transactionType = TransactionType.INCOME, reference = null,
+            merchantName = "Shop", dateTime = baseTime.plusDays(2)
+        )
+        val row = parsedTransaction(
+            amount = BigDecimal("150.00"), type = ParsedTransactionType.INCOME, reference = null
+        ).copy(sender = HDFC_CC_PDF_SENDER)
+
+        val result = StatementImportProcessor(FakeTransactionStore(sms)).process(listOf(row))
+
+        assertEquals(0, result.imported)
+        assertEquals(1, result.skippedByAmountDate)
+    }
+
     private class FakeTransactionStore(
         vararg stored: TransactionEntity
     ) : StatementImportProcessor.TransactionStore {

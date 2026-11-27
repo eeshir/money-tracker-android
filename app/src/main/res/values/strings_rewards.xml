@@ -7,7 +7,9 @@
     <string name="rewards_all_cards">All cards</string>
     <string name="rewards_cards_title">Your cards</string>
     <string name="rewards_card_purchases">%1$d purchases</string>
-    <string name="rewards_cap_used">%1$s of %2$s cap used this cycle · %3$s left · resets after %4$s</string>
+    <string name="rewards_cap_used">%1$s: %2$s of %3$s used this cycle · %4$s left · resets after %5$s</string>
+    <string name="rewards_cap_used_month">%1$s: %2$s of %3$s used this month · %4$s left · resets after %5$s</string>
+    <string name="rewards_statement_bonus">Includes %1$s of statement bonus, not tied to one purchase</string>
     <string name="rewards_set_up_rates">Set reward rates</string>
     <string name="rewards_edit_rates">Edit rates</string>
     <plurals name="rewards_attention">

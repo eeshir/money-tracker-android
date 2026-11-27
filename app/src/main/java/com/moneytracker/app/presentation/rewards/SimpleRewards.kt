@@ -93,7 +93,7 @@ fun LazyListScope.simpleRewards(
 
     // The big number: never summed across currencies.
     item {
-        val total = shown.flatMap { it.rewards }.sumByCurrency({ it.transaction.currency }, { it.reward })
+        val total = shown.rewardTotals()
         val purchases = shown.sumOf { c -> c.rewards.count { !it.refund && !it.cashbackCredit } }
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -223,6 +223,17 @@ private fun CardTile(item: CardRewardsItem, onClick: () -> Unit, onSetUp: () -> 
                 )
             }
         }
+        if (item.bonuses.isNotEmpty()) {
+            Text(
+                stringResource(
+                    R.string.rewards_statement_bonus,
+                    CurrencyFormatter.formatCurrency(item.bonuses.fold(java.math.BigDecimal.ZERO) { sum, b -> sum + b.amount }, item.currency)
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 10.dp)
+            )
+        }
         item.capUsage.forEach { cap ->
             val currency = item.currency
             Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 10.dp)) {
@@ -232,7 +243,8 @@ private fun CardTile(item: CardRewardsItem, onClick: () -> Unit, onSetUp: () -> 
                 )
                 Text(
                     stringResource(
-                        R.string.rewards_cap_used,
+                        if (cap.calendarMonth) R.string.rewards_cap_used_month else R.string.rewards_cap_used,
+                        cap.label,
                         CurrencyFormatter.formatCurrency(cap.used, currency),
                         CurrencyFormatter.formatCurrency(cap.limit, currency),
                         CurrencyFormatter.formatCurrency(cap.left, currency),

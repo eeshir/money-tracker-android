@@ -152,6 +152,9 @@
     <string name="manage_accounts_outstanding">Outstanding</string>
     <string name="manage_accounts_available">Available</string>
     <string name="manage_accounts_credit_limit">Credit Limit</string>
+    <string name="manage_accounts_shared_limit">Shared limit</string>
+    <string name="manage_accounts_shared_limit_used">%1$s used across %2$d cards</string>
+    <string name="manage_accounts_shared_limit_switch">Shares one limit with your other %1$s cards</string>
     <!-- %1$d = utilization percentage -->
     <string name="manage_accounts_utilization_used">(%1$d%% used)</string>
     <string name="manage_accounts_more_options">More options</string>

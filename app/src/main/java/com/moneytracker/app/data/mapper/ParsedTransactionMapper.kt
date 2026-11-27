@@ -52,7 +52,7 @@ fun ParsedTransaction.toEntity(): TransactionEntity {
         category = "Credit Card Payment"
         true
     } else {
-        com.moneytracker.parser.core.bank.FundsHold.isHold(smsBody)
+        com.moneytracker.parser.core.bank.FundsHold.isHold(smsBody) || isCardBalanceSentToBank(normalizedMerchant, entityType)
     }
 
     return TransactionEntity(
@@ -93,8 +93,15 @@ fun ParsedTransaction.toEntity(): TransactionEntity {
 internal fun isIciciCardBillPay(smsBody: String?): Boolean =
     smsBody?.contains("BIL*INFT*", ignoreCase = true) == true
 
-/** The CRED app by its name as a word: not "Credit", "Cashback Credit" or "PaisabazaarCred". */
-private val CRED_APP_NAME = Regex("""\bcred\b""")
+/** A card's spare balance sent to the bank account, as the card's statement words it: a transfer, not a purchase. */
+internal fun isCardBalanceSentToBank(merchant: String?, type: TransactionType): Boolean =
+    type == TransactionType.CREDIT && merchant?.startsWith("refund amt transfer to bank", ignoreCase = true) == true
+
+/**
+ * A bill paid through CRED, which names "CRED Club". A payment to plain "CRED" can be a purchase (a voucher bought in
+ * the app), so it counts as spending. Not "Credit", "Cashback Credit" or "PaisabazaarCred" either.
+ */
+private val CRED_BILL_PAYMENT = Regex("""\bcred[ ._]?(club|pay)\b""")
 
 /**
  * Whether a transaction is a credit-card bill payment — money moving between the person's own
@@ -104,11 +111,13 @@ private val CRED_APP_NAME = Regex("""\bcred\b""")
 internal fun isCreditCardPayment(merchant: String?, smsBody: String?, type: TransactionType): Boolean {
     val m = merchant?.lowercase().orEmpty()
     val body = smsBody?.lowercase().orEmpty()
-    if (CRED_APP_NAME.containsMatchIn(m) || m.contains("credit card payment") || m.contains("cc payment")) {
+    if (CRED_BILL_PAYMENT.containsMatchIn(m) || m.contains("credit card payment") || m.contains("cc payment")) {
         return true
     }
     // The bank-side debit, and a card statement's own "PAYMENT RECEIVED, THANK YOU" row.
     if (isIciciCardBillPay(smsBody) || (type == TransactionType.INCOME && m.contains("payment received"))) return true
+    // HSBC's statement prints a bill paid through BBPS as "BBPS PMT …".
+    if (type == TransactionType.INCOME && m.startsWith("bbps pmt")) return true
     val mentionsCard = body.contains("credit card") || body.contains("card ending") || body.contains("cc bill")
     // BillDesk pays any biller (electricity, insurance…): a card payment only when the SMS says card.
     if (m.contains("billdesk") && mentionsCard) return true
@@ -191,7 +200,8 @@ fun canonicalizeMerchantName(name: String): String {
         // and AWS are separate services and keep their own names.
         lower.contains("amazon") && !lower.contains("prime") && !lower.contains("aws") &&
             !lower.contains("web services") -> "Amazon"
-        lower.contains("myntra") -> "Myntra"
+        // "WWWMYNTR1000004" is Myntra's website, as the card SMS cuts it.
+        lower.contains("myntra") || lower.contains("wwwmyntr") -> "Myntra"
         else -> {
             if (trimmed == trimmed.uppercase()) {
                 trimmed.lowercase().split(" ").joinToString(" ") { word ->

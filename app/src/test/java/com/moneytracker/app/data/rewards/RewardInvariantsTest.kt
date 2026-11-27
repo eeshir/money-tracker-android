@@ -138,7 +138,9 @@ class RewardInvariantsTest {
                 assertTrue("case $n: kept a statement row", d.keep.smsSender?.endsWith("CC PDF") != true)
                 assertEquals(d.keep.amount.compareTo(d.drop.amount), 0)
                 assertEquals(d.keep.accountNumber, d.drop.accountNumber)
-                assertTrue("case $n: not within a day", Math.abs(d.keep.dateTime.toLocalDate().toEpochDay() - d.drop.dateTime.toLocalDate().toEpochDay()) <= 1)
+                val trails = d.keep.dateTime.toLocalDate().toEpochDay() - d.drop.dateTime.toLocalDate().toEpochDay()
+                val latest = if (d.drop.transactionType == TransactionType.INCOME) 5 else 1
+                assertTrue("case $n: dates too far apart: $trails", trails in -1..latest)
                 assertTrue("case $n: a deleted row was paired", !d.keep.isDeleted && !d.drop.isDeleted)
             }
         }

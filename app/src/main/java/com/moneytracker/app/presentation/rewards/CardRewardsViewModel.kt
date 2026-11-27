@@ -34,12 +34,19 @@ data class CardRewardsItem(
     /** Each saved statement's reported rewards against the estimate for its cycle. */
     val checks: List<com.moneytracker.app.data.rewards.StatementCheck> = emptyList(),
     /** Cap used so far in the current statement cycle, per capped rule. */
-    val capUsage: List<com.moneytracker.app.data.rewards.CapUsage> = emptyList()
+    val capUsage: List<com.moneytracker.app.data.rewards.CapUsage> = emptyList(),
+    /** Rewards a statement adds that belong to no one purchase, in the card's currency. */
+    val bonuses: List<com.moneytracker.app.data.rewards.StatementBonus> = emptyList()
 ) {
     val currency: String get() = card.currency
     /** This card's rewards, totalled per currency (a card can have foreign-currency purchases); never added across currencies. */
-    val totals: Map<String, com.moneytracker.app.utils.Money> get() = rewards.sumByCurrency({ it.transaction.currency }, { it.reward })
+    val totals: Map<String, com.moneytracker.app.utils.Money> get() = listOf(this).rewardTotals()
 }
+
+/** Purchase rewards and statement bonuses, totalled per currency. */
+fun List<CardRewardsItem>.rewardTotals(): Map<String, com.moneytracker.app.utils.Money> =
+    flatMap { item -> item.rewards.map { it.transaction.currency to it.reward } + item.bonuses.map { item.currency to it.amount } }
+        .sumByCurrency({ it.first }, { it.second })
 
 enum class RewardPeriod {
     THIS_MONTH, LAST_3_MONTHS, ALL;
@@ -92,7 +99,8 @@ class CardRewardsViewModel @Inject constructor(
     private val statementRewards: com.moneytracker.app.data.statement.StatementRewardStore,
     private val uiPrefs: com.moneytracker.app.data.rewards.RewardsUiPrefs,
     overrideStore: com.moneytracker.app.data.rewards.RewardOverrideStore,
-    private val statements: com.moneytracker.app.data.statement.ImportStatementUseCase
+    private val statements: com.moneytracker.app.data.statement.ImportStatementUseCase,
+    private val separateRows: com.moneytracker.app.data.statement.SeparateRowStore
 ) : ViewModel() {
 
     init {
@@ -111,12 +119,18 @@ class CardRewardsViewModel @Inject constructor(
 
     /** Card purchases that are in twice, from an SMS and from a statement. */
     val duplicates: StateFlow<List<com.moneytracker.app.data.statement.StatementDuplicate>> =
-        combine(transactions.getAllTransactions(), statementRewards.entries) { txns, entries ->
+        combine(transactions.getAllTransactions(), statementRewards.entries, separateRows.hashes) { txns, entries, kept ->
             // The statement copy of an SMS purchase, plus extra SMS alerts a day off the statement's own row.
-            (com.moneytracker.app.data.statement.StatementDuplicates.find(txns) +
+            val removedRows = transactions.getDeletedStatementRows()
+            (com.moneytracker.app.data.statement.StatementDuplicates.find(txns + removedRows) +
                 com.moneytracker.app.data.statement.StatementDuplicates.findAdjacent(txns, entries)).distinctBy { it.drop.id }
+                // Filtered afterwards, so the SMS of a kept pair stays taken and is not offered another row.
+                .filterNot { it.drop.transactionHash in kept }
         }
             .flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** The offered pairs are separate transactions: keep both of each, and do not ask again. */
+    fun keepDuplicates() = separateRows.keep(duplicates.value.map { it.drop.transactionHash })
 
     /** Removes the statement copy of each duplicate, keeping the SMS row. */
     fun mergeDuplicates() {
@@ -152,7 +166,8 @@ class CardRewardsViewModel @Inject constructor(
                 // Statement rows no transaction matched (payments and zero-reward credits are not purchases).
                 val missing = reported?.unmatched().orEmpty().filterNot { it.credit && (it.points.toBigDecimalOrNull()?.signum() ?: 0) == 0 }
                 CardRewardsItem(card, program, rewards, program?.let { StatementChecker.check(it, predictedByStatement, mine, missing, card.currency) }.orEmpty(),
-                    program?.let { RewardCalculator.capUsage(it, rewards, cycleDay) }.orEmpty())
+                    program?.let { RewardCalculator.capUsage(it, rewards, cycleDay) }.orEmpty(),
+                    program?.let { com.moneytracker.app.data.rewards.StatementBonus.of(it, mine) }.orEmpty())
             }
         }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
@@ -160,15 +175,24 @@ class CardRewardsViewModel @Inject constructor(
     val items: StateFlow<List<CardRewardsItem>> =
         combine(allItems, _period) { all, p ->
             val from = p.start()
-            all.map { it.copy(rewards = it.rewards.filter { r -> from == null || !r.transaction.dateTime.toLocalDate().isBefore(from) }) }
+            all.map { item ->
+                item.copy(
+                    rewards = item.rewards.filter { r -> from == null || !r.transaction.dateTime.toLocalDate().isBefore(from) },
+                    bonuses = item.bonuses.filter { b -> from == null || !b.date.isBefore(from) }
+                )
+            }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     /** What the Home card shows: this month and the last three months, per currency. */
     val summary: StateFlow<RewardsSummary> = allItems.map { all ->
-        val rewards = all.filter { it.program != null }.flatMap { it.rewards }
+        val configured = all.filter { it.program != null }
         fun since(d: java.time.LocalDate) =
-            rewards.filter { !it.transaction.dateTime.toLocalDate().isBefore(d) }
-                .sumByCurrency({ it.transaction.currency }, { it.reward })
+            configured.map { item ->
+                item.copy(
+                    rewards = item.rewards.filter { !it.transaction.dateTime.toLocalDate().isBefore(d) },
+                    bonuses = item.bonuses.filter { !it.date.isBefore(d) }
+                )
+            }.rewardTotals()
         RewardsSummary(
             configuredCards = all.count { it.program != null },
             totalCards = all.size,

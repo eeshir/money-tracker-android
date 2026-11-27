@@ -37,6 +37,12 @@ class HDFCBankParser : BaseIndianBankParser() {
     }
 
     override fun extractMerchant(message: String, sender: String): String? {
+        // "Rs. N refunded by WWW SHOP IN            CITY      IN on 01/JAN/2026 & adjusted against ..."
+        Regex("""\brefunded by\s+(.+?)(?:\s{2,}|\s+on\s+\d)""", RegexOption.IGNORE_CASE).find(message)?.let { match ->
+            val merchant = cleanMerchantName(match.groupValues[1].trim())
+            if (merchant.isNotEmpty()) return merchant
+        }
+
         // Reversal/refund format: "... By AMAZON        000 On 2026-08-21:..." —
         // HDFC right-pads the merchant name with spaces before a trailing code,
         // so capture up to that run of spaces (or " On "). (#698)
@@ -525,6 +531,14 @@ class HDFCBankParser : BaseIndianBankParser() {
 
 
     override fun isTransactionMessage(message: String): Boolean {
+        // "Refund initiated ... To receive your Refund, please update your Bank details" asks for details before
+        // anything is paid: no money has moved.
+        if (message.contains("refund initiated", ignoreCase = true) &&
+            message.contains("to receive your refund", ignoreCase = true)
+        ) {
+            return false
+        }
+
         // Skip E-Mandate notifications
         if (isEMandateNotification(message)) {
             return false

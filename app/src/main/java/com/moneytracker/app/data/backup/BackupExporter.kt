@@ -151,14 +151,18 @@ class BackupExporter @Inject constructor(
             )
         } else null
         
+        // Removed statement copies go too, still marked removed: each records that an SMS row already stands in for it,
+        // without which a restore would offer to remove real statement rows as duplicates.
+        val withRemovedCopies = transactions + database.transactionDao().getDeletedStatementRows()
+
         // Apply privacy settings if needed
         val finalTransactions = when (privacy) {
-            ExportPrivacy.FULL -> transactions
-            ExportPrivacy.MASKED -> transactions.map { it.copy(
+            ExportPrivacy.FULL -> withRemovedCopies
+            ExportPrivacy.MASKED -> withRemovedCopies.map { it.copy(
                 smsBody = "[REDACTED]",
                 accountNumber = it.accountNumber?.takeLast(4)?.let { "****$it" }
             )}
-            ExportPrivacy.ANONYMOUS -> transactions.map { it.copy(
+            ExportPrivacy.ANONYMOUS -> withRemovedCopies.map { it.copy(
                 merchantName = "Merchant",
                 description = null,
                 smsBody = "[REDACTED]",

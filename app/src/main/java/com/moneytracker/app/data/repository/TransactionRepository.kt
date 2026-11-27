@@ -52,6 +52,8 @@ open class TransactionRepository @Inject constructor(
     fun getWebhookTransactions(start: LocalDateTime, end: LocalDateTime, currency: String) =
         transactionDao.getTransactionsFiltered(start, end, currency, null)
 
+    suspend fun getDeletedStatementRows(): List<TransactionEntity> = transactionDao.getDeletedStatementRows()
+
     fun getAllTransactions(): Flow<List<TransactionEntity>> = 
         transactionDao.getAllTransactions()
     

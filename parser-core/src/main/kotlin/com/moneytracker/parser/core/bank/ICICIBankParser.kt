@@ -278,6 +278,14 @@ class ICICIBankParser : BaseIndianBankParser() {
     }
 
     override fun extractMerchant(message: String, sender: String): String? {
+        // "…debited Rs. N on … InfoNRS*USD100.00": dollars bought and sent abroad. The SMS names no payee.
+        if (isOutwardDollarTransfer(message)) return "Overseas Transfer (USD)"
+
+        // The card's own confirmation of a bill payment.
+        if (message.contains("has been received on your ICICI Bank Credit Card", ignoreCase = true)) {
+            return "Credit Card Payment"
+        }
+
         // Credit card: "… is debited on ICICI Bank Credit Card XX0000 on 17-Jan-22.
         // Info: Amazon. Available Limit: …" (#887). Ends at the trailer clause, not
         // the first period, so "WWW.AMAZON.IN" stays whole.
@@ -671,11 +679,12 @@ class ICICIBankParser : BaseIndianBankParser() {
             return false // This is a future debit notification, not an actual transaction
         }
 
-        // Skip credit card bill payment confirmations - these are transfers between own accounts
-        // Example: "Payment of Rs 26,266.00 has been received on your ICICI Bank Credit Card XX9006..."
-        if (lowerMessage.contains("has been received on your icici bank credit card")) {
-            return false // This is a credit card bill payment, not a transaction
+        // A card's spare balance moved to the savings account: neither spending nor money received. The savings
+        // account's own message records it arriving.
+        if (lowerMessage.contains("from icici bank credit card") && lowerMessage.contains("to savings account")) {
+            return false
         }
+
 
         // Check for ICICI-specific transaction keywords
         val iciciKeywords = listOf(
@@ -699,7 +708,12 @@ class ICICIBankParser : BaseIndianBankParser() {
         return super.isTransactionMessage(message)
     }
 
+    private fun isOutwardDollarTransfer(message: String) = message.contains("InfoNRS*USD", ignoreCase = true)
+
     override fun extractTransactionType(message: String): TransactionType? {
+        // Money sent abroad this way is for investing there, so it is not counted as spending.
+        if (isOutwardDollarTransfer(message)) return TransactionType.INVESTMENT
+
         val lowerMessage = message.lowercase()
 
         // NEFT/RTGS transfer confirmation to sender - "credited to the beneficiary account"

@@ -60,7 +60,7 @@ fun CardRewardsScreen(
     var earningOnly by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     var editing by remember { mutableStateOf<CardRewardsItem?>(null) }
     // Never add across currencies: a per-currency map, formatted together.
-    val grandTotal = items.flatMap { it.rewards }.sumByCurrency({ it.transaction.currency }, { it.reward })
+    val grandTotal = items.rewardTotals()
 
     PennyWiseScaffold(
         title = stringResource(R.string.card_rewards_title),
@@ -105,6 +105,7 @@ fun CardRewardsScreen(
                             }
                             TextButton(onClick = { reviewing = !reviewing }) { Text(stringResource(R.string.card_rewards_duplicates_review)) }
                             TextButton(onClick = viewModel::mergeDuplicates) { Text(stringResource(R.string.card_rewards_duplicates_merge)) }
+                            TextButton(onClick = viewModel::keepDuplicates) { Text(stringResource(R.string.card_rewards_duplicates_keep_all)) }
                         }
                     }
                 }

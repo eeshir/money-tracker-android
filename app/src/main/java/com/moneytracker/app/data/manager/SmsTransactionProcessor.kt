@@ -56,7 +56,8 @@ class SmsTransactionProcessor @Inject constructor(
     private val database: PennyWiseDatabase,
     private val ownPayeeMirror: com.moneytracker.app.data.payees.OwnPayeeMirror,
     private val cardRefundLinker: com.moneytracker.app.data.refunds.CardRefundLinker,
-    private val cardPaymentDeduper: com.moneytracker.app.data.statement.CardPaymentDeduper
+    private val cardPaymentDeduper: com.moneytracker.app.data.statement.CardPaymentDeduper,
+    private val statementCopies: com.moneytracker.app.data.statement.StatementCopyAbsorber
 ) {
     private val bankAccountMerges = BankAccountMergeStore(appContext)
     companion object {
@@ -322,6 +323,9 @@ class SmsTransactionProcessor @Inject constructor(
                     val (add, remove) = ruleApplications.tagChanges()
                     if (add.isNotEmpty() || remove.isNotEmpty()) tagRepository.applyTagChanges(rowId, add, remove)
                 }
+
+                // A statement imported earlier may already have added this one.
+                runCatching { statementCopies.absorb(rowId) }
 
                 // Process balance updates
                 processBalanceUpdate(parsedTransaction, finalEntity, rowId)

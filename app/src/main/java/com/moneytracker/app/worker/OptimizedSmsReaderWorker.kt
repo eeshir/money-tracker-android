@@ -89,7 +89,8 @@ class OptimizedSmsReaderWorker @AssistedInject constructor(
     private val generateIncomeAutopayUseCase: com.moneytracker.app.domain.usecase.GenerateIncomeAutopayUseCase,
     private val ownPayeeMirror: com.moneytracker.app.data.payees.OwnPayeeMirror,
     private val cardRefundLinker: com.moneytracker.app.data.refunds.CardRefundLinker,
-    private val cardPaymentDeduper: com.moneytracker.app.data.statement.CardPaymentDeduper
+    private val cardPaymentDeduper: com.moneytracker.app.data.statement.CardPaymentDeduper,
+    private val statementCopies: com.moneytracker.app.data.statement.StatementCopyAbsorber
 ) : CoroutineWorker(appContext, workerParams) {
     private val bankAccountMerges = BankAccountMergeStore(appContext)
 
@@ -912,6 +913,8 @@ class OptimizedSmsReaderWorker @AssistedInject constructor(
                 val rowId = transactionRepository.insertTransaction(finalEntity)
                 if (rowId == -1L) return@coroutineScope skipped("insert conflict")
 
+                // A statement imported earlier may already have added this one.
+                try { statementCopies.absorb(rowId) } catch (e: CancellationException) { throw e } catch (e: Exception) { Log.w(TAG, "Statement copy check failed: ${e.message}") }
                 saveRuleApplications(rowId, ruleApps)
                 pendingBalance = heldInput.atEnqueuedAccount(parsed, finalEntity)?.let {
                     DeferredBalanceUpdate(it, rowId)

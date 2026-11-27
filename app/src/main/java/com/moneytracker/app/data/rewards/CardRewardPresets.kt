@@ -96,7 +96,9 @@ object CardRewardPresets {
                 ),
                 ratePercent = "10", monthlyCap = "1200", earlierMonthlyCap = "1000", earlierUntil = "2026-07-26",
                 extraKeywords = listOf(
-                    "shopping", "nykaa", "utilit", "electricity", "telecom", "jio", "airtel", "vodafone", "broadband", "recharge"
+                    "shopping", "nykaa", "utilit", "electricity", "telecom", "jio", "airtel", "vodafone", "broadband", "recharge",
+                    // Ajio, whose card SMS names the seller.
+                    "ajio", "reliance retail"
                 ),
                 extraFrom = "2026-07-26",
                 exceptKeywords = listOf("amazon", "flipkart", "myntra"),
@@ -112,7 +114,8 @@ object CardRewardPresets {
     /**
      * Per the card's statements (points worth 25 paise): 2 CashPoints per Rs 200 on other spends (0.25%); 10X on partner
      * merchants (20 points per Rs 200, 2.5%), as a large Amazon purchase on a statement showed.
-     * Swiggy, Myntra and the rest earned only the base rate. Purchases made through SmartBuy earn a separate 5% that the bank
+     * Swiggy is on the card's 10X list too (terms of 15 May 2026), and a statement has borne that out.
+     * Points are given for each full Rs 200. Purchases made through SmartBuy earn a separate 5% that the bank
      * credits as a "SmartBuy_Bonus_5per_CB" row, which the app counts as the cashback it is. EMI conversions earn nothing.
      */
     private fun hdfcMoneyBackPlus(bank: String) = CardRewardProgram(
@@ -120,7 +123,8 @@ object CardRewardPresets {
         baseRatePercent = "0.25",
         pointValue = "0.25",
         rules = listOf(
-            RewardRule("10X partners", listOf("amazon", "bigbasket", "flipkart", "reliance smart"), "2.5")
+            // The card's terms: at most 2,500 CashPoints (Rs 625) of 10X in a calendar month.
+            RewardRule("10X partners", listOf("amazon", "bigbasket", "flipkart", "reliance smart", "swiggy"), "2.5", monthlyCap = "625")
         ),
         excludedKeywords = listOf("fuel", "emi")
     )

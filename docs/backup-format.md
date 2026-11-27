@@ -267,10 +267,16 @@ New top-level keys, all defaulted (older backups decode to empty ones, older app
 | Key | Content | On restore |
 |---|---|---|
 | `statements` | each saved statement's metadata + the PDF (`data_base64`, still locked by the bank's password, decrypted from this phone's key because the backup is encrypted instead) | Re-encrypted with the new phone's key; a PDF already saved here is left as it is; "already imported" is kept so it is not imported again. After the DB commit, like receipts. |
-| `rewards` | `programs` (per-card reward rules), `overrides` (rate per purchase: `transaction_id` + `rate_percent`), `advanced_screen` | Programs/overrides are **additive** (what is set here wins); override transaction ids go through the id map and are dropped if the purchase did not restore. |
+| `rewards` | `programs` (per-card reward rules), `overrides` (rate per purchase: `transaction_id` + `rate_percent`), `advanced_screen`, `shared_limit_banks` (banks whose cards share one limit; restored additively), `separate_rows` (hashes of statement rows kept as separate transactions; additive) | Programs/overrides are **additive** (what is set here wins); override transaction ids go through the id map and are dropped if the purchase did not restore. |
 | `webhooks` | `profiles` (URL + headers: may hold a token), `logs`, `cursors`, `delivered` (`transaction_id`) | REPLACE_ALL removes this phone's webhooks first; MERGE skips a profile with the same id. Logs/cursors/delivered come only for profiles added now; `delivered` ids are remapped, so a restored webhook does not send everything again. |
 | `preferences.app.recent_split_contacts` | names used in recent splits | Added to the suggestions. |
 
 Webhook DTOs hold dates as ISO strings and enums by name rather than serializing the Room
 entities directly, so the entities need no `@Serializable` and the schema guard stays simple.
 Code: `BackupExtras.kt`; tests: `BackupExtrasFormatTest`.
+
+## Removed statement copies
+
+`transactions` also holds soft-deleted **statement** rows (`isDeleted = true`). Each records that an SMS row
+already stands in for it; without them a restore would offer real statement rows as duplicates. Other deleted
+rows are not exported. An import keeps the flag.

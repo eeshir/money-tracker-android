@@ -78,17 +78,24 @@ T&C. Ignore if paid""",
                 )
             ),
 
-            // Credit-card refund — incoming credit to the card. Reported via
-            // TODO.md: parser was dropping these silently because the message
-            // lacks the standard "debited/credited/spent/..." keywords.
+            // Asks for bank details before any refund is paid: no money has moved.
             ParserTestCase(
-                name = "Credit Card Refund Initiated - Income",
+                name = "Refund waiting for bank details is not a transaction",
                 message = "Refund initiated: Amt: Rs.34274.66 on HDFC Bank Credit Card 1111. To receive your Refund,please update your Bank details: TnC.",
                 sender = "VM-HDFCBK-S",
+                shouldParse = false
+            ),
+
+            // A refund already set against the card names who sent it.
+            ParserTestCase(
+                name = "Refund adjusted against the card names the merchant",
+                message = "Alert! Rs. 150 refunded by WWW SHOP IN            GURGAON      IN on 05/MAY/2026 & adjusted against HDFC Bank Credit Card 1111 View updated balance here: https://example.invalid/x",
+                sender = "VM-HDFCBK-S",
                 expected = ExpectedTransaction(
-                    amount = BigDecimal("34274.66"),
+                    amount = BigDecimal("150"),
                     currency = "INR",
                     type = com.moneytracker.parser.core.TransactionType.INCOME,
+                    merchant = "WWW SHOP IN",
                     accountLast4 = "1111"
                 )
             ),

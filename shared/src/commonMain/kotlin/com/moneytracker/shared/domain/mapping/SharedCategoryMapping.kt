@@ -842,7 +842,7 @@ object SharedCategoryMapping {
     private val INVESTMENT = setOf(
         "groww", "zerodha", "upstox", "kuvera", "paytm money", "coin", "coin zerodha", "kite zerodha",
         "smallcase", "mutual fund", "sip", "angel", "angel one", "5paisa", "etmoney", "et money",
-        "indmoney", "dhan", "motilal oswal", "sharekhan", "icici direct", "hdfc sky", "kotak securities",
+        "indmoney", "overseas transfer", "dhan", "motilal oswal", "sharekhan", "icici direct", "hdfc sky", "kotak securities",
         "axis direct", "sbi securities", "wint wealth", "grip invest", "goldenpi", "tijori", "jar app",
         "safegold", "augmont", "amc", "uti mf", "nippon", "hdfc mf", "sbi mf", "icici pru mf"
     )
@@ -951,7 +951,8 @@ object SharedCategoryMapping {
 
     private val CC_PAYMENT = setOf(
         "bbps", "bill payment", "credit card payment", "cc payment", "card payment",
-        "cred", "cred club", "cred pay", "cheq", "paytm cc", "mobikwik cc", "bhim cc",
+        // "CRED" on its own is not here: CRED also sells vouchers. Its bill payments name "CRED Club".
+        "cred club", "cred.club", "cred pay", "cheq", "paytm cc", "mobikwik cc", "bhim cc",
         "billdesk cc", "credit card bill", "cc bill",
         "payment to credit card", "payment towards credit card", "payment received towards credit card",
         "auto debit credit card", "autodebit credit card", "auto debit cc", "credit card auto debit"

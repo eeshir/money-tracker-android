@@ -177,9 +177,10 @@
     <string name="card_rewards_cycle_sources">%1$d rows counted: %2$d from SMS, %3$d from statements</string>
     <string name="card_rewards_close">Close</string>
     <string name="card_rewards_cycle_ending">Cycle ending %1$s</string>
-    <string name="card_rewards_duplicates_title">%1$d card purchases are in twice</string>
-    <string name="card_rewards_duplicates_body">The same purchase was recorded twice (an SMS and a statement copy, or two SMS alerts a day apart), so its reward is counted twice. Merging keeps the copy that matches the statement and removes the extra.</string>
+    <string name="card_rewards_duplicates_title">%1$d entries are in twice</string>
+    <string name="card_rewards_duplicates_body">The same transaction was recorded twice (an SMS and a card or bank statement copy, or two SMS alerts a day apart), so totals and rewards count it twice. Merging keeps one copy and removes the extra.</string>
     <string name="card_rewards_duplicates_merge">Merge duplicates</string>
+    <string name="card_rewards_duplicates_keep_all">They are separate: keep both</string>
     <string name="card_rewards_duplicates_review">Review what will be merged</string>
     <string name="card_rewards_duplicates_keeps">keeps the copy of %1$s</string>
     <string name="card_rewards_cycle_missing">%1$d statement rows have no matching transaction in the app:</string>

@@ -454,7 +454,15 @@ data class BackupRewards(
 
     // Null in backups that did not carry it, so a restore leaves the current choice alone.
     @SerialName("advanced_screen")
-    val advancedScreen: Boolean? = null
+    val advancedScreen: Boolean? = null,
+
+    /** Banks whose cards share one credit limit. */
+    @SerialName("shared_limit_banks")
+    val sharedLimitBanks: List<String> = emptyList(),
+
+    /** Hashes of statement rows the person keeps as their own entries, not duplicates. */
+    @SerialName("separate_rows")
+    val separateRows: List<String> = emptyList()
 )
 
 /** A rate the person set on one purchase. [transactionId] is remapped on restore. */
