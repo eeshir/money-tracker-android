@@ -1007,7 +1007,10 @@ class BackupImporter @Inject constructor(
             val expenseId = checkNotNull(transactionIdMap[link.expenseId]) { "Expense ${link.expenseId} not restored" }
             val refund = checkNotNull(database.transactionDao().getTransactionById(refundId)) { "Refund $refundId missing" }
             val expense = checkNotNull(database.transactionDao().getTransactionById(expenseId)) { "Expense $expenseId missing" }
-            check(com.moneytracker.app.data.refunds.RefundLinks.canLink(refund, expense)) { "Expense $expenseId can not be linked" }
+            // A removed refund's old link counts for nothing; older files of this version carried some.
+            if (refund.isDeleted) return@insertEachCounting
+            // A purchase left out of totals since it was linked (turned into EMI) keeps its link: restore what was there.
+            check(com.moneytracker.app.data.refunds.RefundLinks.canLink(refund, expense.copy(excludedFromAnalytics = false))) { "Expense $expenseId can not be linked" }
             check(link.amount.signum() > 0) { "Link amount must be positive" }
             val key = Triple(refundId to expenseId, link.category, link.amount.stripTrailingZeros())
             if (key in existing) return@insertEachCounting

@@ -280,3 +280,6 @@ Code: `BackupExtras.kt`; tests: `BackupExtrasFormatTest`.
 `transactions` also holds soft-deleted **statement** rows (`isDeleted = true`). Each records that an SMS row
 already stands in for it; without them a restore would offer real statement rows as duplicates. Other deleted
 rows are not exported. An import keeps the flag.
+
+Refund links of removed copies are not exported, and an import ignores any whose refund is deleted. A link onto
+an expense that is excluded from analytics (a purchase turned into EMI) is restored as it was.

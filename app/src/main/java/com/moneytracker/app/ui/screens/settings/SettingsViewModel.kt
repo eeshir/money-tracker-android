@@ -526,21 +526,21 @@ class SettingsViewModel @Inject constructor(
             }
             is PassphraseRequest.Open -> {
                 _passphraseRequest.value = null
-                importBackup(request.uri, passphrase)
+                importBackup(request.uri, request.strategy, passphrase)
             }
             null -> Unit
         }
     }
 
-    fun importBackup(uri: android.net.Uri, passphrase: String? = null) {
+    fun importBackup(uri: android.net.Uri, strategy: ImportStrategy, passphrase: String? = null) {
         viewModelScope.launch {
             try {
                 _importExportMessage.value = UiText.Res(R.string.settings_importing_backup)
-                val result = backupImporter.importBackup(uri, ImportStrategy.MERGE, passphrase)
+                val result = backupImporter.importBackup(uri, strategy, passphrase)
                 when (result) {
                     is ImportResult.NeedsPassphrase -> {
                         _importExportMessage.value = null
-                        _passphraseRequest.value = PassphraseRequest.Open(uri, wrong = result.wrong)
+                        _passphraseRequest.value = PassphraseRequest.Open(uri, wrong = result.wrong, strategy = strategy)
                     }
                     is ImportResult.Success -> {
                         val counts = listOf(result.importedTransactions, result.importedCategories, result.skippedDuplicates)
@@ -762,5 +762,5 @@ sealed interface PassphraseRequest {
     data class Choose(val then: (() -> Unit)?) : PassphraseRequest
 
     /** [uri] is an encrypted backup; [wrong] is true when the passphrase just tried didn't open it. */
-    data class Open(val uri: android.net.Uri, val wrong: Boolean) : PassphraseRequest
+    data class Open(val uri: android.net.Uri, val wrong: Boolean, val strategy: ImportStrategy) : PassphraseRequest
 }

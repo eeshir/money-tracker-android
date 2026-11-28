@@ -140,7 +140,10 @@ object RewardCalculator {
         val used = HashMap<Pair<Int, YearMonth>, BigDecimal>() // (rule index, -1 = base) + month -> reward so far
         val byId = transactions.associateBy { it.id }
         val done = HashMap<Long, TransactionReward>() // what each transaction earned, so a linked refund can take back its purchase's share
-        fun TransactionEntity.linkedToProgram() = refundLinks[id]?.any { byId[it.first]?.belongsTo(program) == true } == true
+        // Money paid into some other account (say, someone paying back their share) never reached the card, so the
+        // card's bank takes nothing back for it. An entry with no account is the person's own note of a card refund.
+        fun TransactionEntity.linkedToProgram() = accountNumber.isNullOrBlank() &&
+            refundLinks[id]?.any { byId[it.first]?.belongsTo(program) == true } == true
 
         /**
          * A refund the person linked to purchases (a manual entry, or a refund SMS the app could not tie to the card)

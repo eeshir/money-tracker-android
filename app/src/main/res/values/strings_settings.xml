@@ -258,6 +258,11 @@
     <string name="settings_backup_saved">Backup saved successfully!</string>
     <string name="settings_backup_save_failed">Failed to save backup: %1$s</string>
     <string name="settings_importing_backup">Importing backup...</string>
+    <string name="settings_import_choice_title">Restore backup</string>
+    <string name="settings_import_choice_body">Merge adds what is missing and leaves what is already here, including duplicates. Replace removes the transactions, accounts and other records on this phone and puts the backup in their place. Saved statements and reward settings are added to.</string>
+    <string name="settings_import_choice_merge">Merge with what is here</string>
+    <string name="settings_import_choice_replace">Replace everything with the backup</string>
+    <string name="settings_import_choice_cancel">Cancel</string>
     <string name="settings_import_backup_success">Import successful! Imported %1$d transactions, %2$d categories. Skipped %3$d duplicates.</string>
     <string name="settings_import_backup_success_with_skipped_rows">Import successful! Imported %1$d transactions, %2$d categories. Skipped %3$d duplicates. %4$d rows could not be imported.</string>
     <string name="settings_import_failed">Import failed: %1$s</string>

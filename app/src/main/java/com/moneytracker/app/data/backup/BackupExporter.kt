@@ -211,7 +211,8 @@ class BackupExporter @Inject constructor(
         } else emptyList()
         // Refund links point at two transactions: FULL only, and only when both ends are in the backup.
         val exportedRefundAllocations = if (privacy == ExportPrivacy.FULL) {
-            val ids = finalTransactions.mapTo(HashSet()) { it.id }
+            // Not those of removed statement copies: on restore their old links would take the room the real ones need.
+            val ids = finalTransactions.filterNot { it.isDeleted }.mapTo(HashSet()) { it.id }
             refundAllocations.filter { it.refundId in ids && it.expenseId in ids }
         } else emptyList()
         // Receipt photos (#839): only when the caller opts in, and only in FULL

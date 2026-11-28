@@ -1,0 +1,3 @@
+• Restoring a backup now asks: merge with what is on the phone, or replace everything with it.
+• Restoring keeps all refund links, including those on purchases turned into EMI.
+• Money paid back to a bank account or another card no longer reduces card rewards, even when linked to a card purchase.

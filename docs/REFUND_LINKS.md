@@ -87,6 +87,12 @@ Transactions totals: card purchases count in Expenses and Net for the month they
 as expense" is on (the default), and sums are exact. This matters for refunds because a refund to a card nets
 against a card purchase in that purchase's month.
 
+## Card rewards
+
+A linked refund takes back card reward only if it reached the card: it is on that card, or it has no account (a refund
+noted by hand). Money paid into a bank account or another card (someone paying back their share) still lowers the
+spending figures through its link, but takes back no reward (`RewardCalculator.compute`).
+
 ## Backup and restore
 
 `refund_allocations` is a defaulted list in `DatabaseSnapshot` (old backups decode to no links). Both transaction

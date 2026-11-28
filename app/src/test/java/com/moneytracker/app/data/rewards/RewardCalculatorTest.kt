@@ -249,6 +249,29 @@ class RewardCalculatorTest {
     }
 
     @Test
+    fun `money paid into another account takes back no card reward, even when linked to a card purchase`() {
+        val purchase = tx(1, "2000", "ShopCo India")
+        val repayment = tx(2, "1000", "A friend", type = TransactionType.INCOME, last4 = "5555").copy(bankName = "Bank B")
+        val links = mapOf(2L to listOf(1L to BigDecimal("1000")))
+
+        val rewards = RewardCalculator.compute(program, listOf(purchase, repayment), refundLinks = links)
+
+        assertEquals(listOf(1L), rewards.map { it.transaction.id })
+        assertEquals(BigDecimal("100.00"), RewardCalculator.capUsage(program, rewards, null, today = purchase.dateTime.toLocalDate()).single().used)
+    }
+
+    @Test
+    fun `a linked refund on the card itself still takes the reward back`() {
+        val purchase = tx(1, "2000", "ShopCo India")
+        val cardRefund = tx(2, "1000", "ShopCo", type = TransactionType.INCOME)
+        val links = mapOf(2L to listOf(1L to BigDecimal("1000")))
+
+        val rewards = RewardCalculator.compute(program, listOf(purchase, cardRefund), refundLinks = links)
+
+        assertEquals(BigDecimal("-50.00"), rewards.last().reward)
+    }
+
+    @Test
     fun `a refund with no link to this card is still ignored`() {
         val manualRefund = TransactionEntity(
             id = 2, amount = BigDecimal("1000"), merchantName = "Ajio", category = "Income",

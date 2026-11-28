@@ -217,12 +217,38 @@ fun SettingsScreen(
         }
     }
 
+    // A picked backup, waiting for the person to say whether it is added to what is here or takes its place.
+    var pickedBackup by remember { mutableStateOf<android.net.Uri?>(null) }
+    pickedBackup?.let { uri ->
+        fun restore(strategy: com.moneytracker.app.data.backup.ImportStrategy) {
+            pickedBackup = null
+            settingsViewModel.importBackup(uri, strategy)
+        }
+        AlertDialog(
+            onDismissRequest = { pickedBackup = null },
+            title = { Text(stringResource(R.string.settings_import_choice_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                    Text(stringResource(R.string.settings_import_choice_body))
+                    TextButton(onClick = { restore(com.moneytracker.app.data.backup.ImportStrategy.MERGE) }) {
+                        Text(stringResource(R.string.settings_import_choice_merge))
+                    }
+                    TextButton(onClick = { restore(com.moneytracker.app.data.backup.ImportStrategy.REPLACE_ALL) }) {
+                        Text(stringResource(R.string.settings_import_choice_replace), color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { pickedBackup = null }) { Text(stringResource(R.string.settings_import_choice_cancel)) } }
+        )
+    }
+
     // File picker for import
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
             uri?.let {
-                settingsViewModel.importBackup(it)
+                pickedBackup = it
             }
         }
     )
