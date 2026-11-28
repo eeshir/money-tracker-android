@@ -171,6 +171,11 @@
     <string name="card_rewards_override_label">Reward rate, % of this purchase</string>
     <string name="card_rewards_override_hint">e.g. 2 for an Amazon gift card or voucher</string>
     <string name="card_rewards_override_reset">Use the card\'s rate</string>
+    <string name="card_rewards_choice_amazon_shopping">5% shopping</string>
+    <string name="card_rewards_choice_amazon_voucher">2% voucher/recharge</string>
+    <string name="card_rewards_choice_tata_card">2% card only</string>
+    <string name="card_rewards_choice_tata_app">7% with Neu app</string>
+    <string name="card_rewards_tata_statement_note">Card points come from the statement. Any partner bonus it lists apart is in the card total. 7% adds the Neu app\'s 5% here.</string>
     <string name="card_rewards_cycle_prev">Credited by the statement dated %1$s, for the cycle shown (the bank credits cashback a cycle later).</string>
     <string name="card_rewards_cycle_same">From the statement dated %1$s, for the cycle shown.</string>
     <string name="card_rewards_cycle_totals">Statement %1$s · app estimate %2$s</string>

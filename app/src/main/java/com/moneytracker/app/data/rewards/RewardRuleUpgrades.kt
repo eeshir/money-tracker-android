@@ -5,7 +5,7 @@ package com.moneytracker.app.data.rewards
  * a keyword or a rule the person does not have. Their rates, caps and own entries are left as they are.
  */
 object RewardRuleUpgrades {
-    const val VERSION = 3
+    const val VERSION = 4
 
     fun apply(program: CardRewardProgram): CardRewardProgram {
         val bank = program.bankName.lowercase()
@@ -15,6 +15,10 @@ object RewardRuleUpgrades {
                 rules = program.rules.map { rule ->
                     if (rule.extraKeywords.none { it.equals("shopping", ignoreCase = true) }) rule
                     else rule.copy(extraKeywords = rule.extraKeywords + HSBC_SHOPPING.filter { it !in rule.extraKeywords })
+                }.map { rule ->
+                    // The Myntra offer, for a saved rule that keeps Myntra out of the 10%.
+                    if (rule.offerKeywords.isNotEmpty() || rule.exceptKeywords.none { it.equals("myntra", ignoreCase = true) }) rule
+                    else rule.copy(offerKeywords = listOf("myntra"), offerFrom = "2026-07-31", offerUntil = "2026-10-31")
                 }
             )
             // First in the list, so it wins over the partner rule that also names Titan.

@@ -93,6 +93,9 @@ A linked refund takes back card reward only if it reached the card: it is on tha
 noted by hand). Money paid into a bank account or another card (someone paying back their share) still lowers the
 spending figures through its link, but takes back no reward (`RewardCalculator.compute`).
 
+Under a capped rule, refunds come off what was earned before the cap: a cycle still over its cap after its refunds
+loses nothing, in whatever order they arrived.
+
 ## Backup and restore
 
 `refund_allocations` is a defaulted list in `DatabaseSnapshot` (old backups decode to no links). Both transaction

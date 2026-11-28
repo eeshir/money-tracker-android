@@ -241,7 +241,9 @@ class CardRewardsViewModel @Inject constructor(
                 earlierMonthlyCap = parts.getOrNull(4)?.ifEmpty { null }, earlierUntil = parts.getOrNull(5)?.ifEmpty { null },
                 extraKeywords = splitKeywords(parts.getOrNull(6).orEmpty()), extraFrom = parts.getOrNull(7)?.ifEmpty { null },
                 exceptKeywords = splitKeywords(parts.getOrNull(8).orEmpty()),
-                aboveCapPercent = parts.getOrNull(9)?.ifEmpty { null }, earlierAboveCapPercent = parts.getOrNull(10)?.ifEmpty { null }
+                aboveCapPercent = parts.getOrNull(9)?.ifEmpty { null }, earlierAboveCapPercent = parts.getOrNull(10)?.ifEmpty { null },
+                offerKeywords = splitKeywords(parts.getOrNull(11).orEmpty()),
+                offerFrom = parts.getOrNull(12)?.ifEmpty { null }, offerUntil = parts.getOrNull(13)?.ifEmpty { null }
             )
         }
 
@@ -250,7 +252,8 @@ class CardRewardsViewModel @Inject constructor(
                 r.label, r.keywords.joinToString(", "), r.ratePercent, r.monthlyCap.orEmpty(),
                 r.earlierMonthlyCap.orEmpty(), r.earlierUntil.orEmpty(),
                 r.extraKeywords.joinToString(", "), r.extraFrom.orEmpty(), r.exceptKeywords.joinToString(", "),
-                r.aboveCapPercent.orEmpty(), r.earlierAboveCapPercent.orEmpty()
+                r.aboveCapPercent.orEmpty(), r.earlierAboveCapPercent.orEmpty(),
+                r.offerKeywords.joinToString(", "), r.offerFrom.orEmpty(), r.offerUntil.orEmpty()
             )
             columns.dropLastWhile { it.isEmpty() }.joinToString(" | ")
         }

@@ -36,7 +36,11 @@ data class RewardRule(
     val exceptKeywords: List<String> = emptyList(),
     /** Rate on the part of a purchase beyond the monthly cap (percent); null = nothing. Before [earlierUntil] it is [earlierAboveCapPercent]. */
     val aboveCapPercent: String? = null,
-    val earlierAboveCapPercent: String? = null
+    val earlierAboveCapPercent: String? = null,
+    /** A limited-time offer: from [offerFrom] to [offerUntil] (ISO dates, both included) these match even if excepted. */
+    val offerKeywords: List<String> = emptyList(),
+    val offerFrom: String? = null,
+    val offerUntil: String? = null
 )
 
 /** How one card earns cashback/rewards. Values come from the card's own terms, entered by the person. */
@@ -100,7 +104,11 @@ data class CapUsage(
 /** Whether a purchase described by [haystack] on [day] falls under this rule, given its dated keywords and exceptions. */
 internal fun RewardRule.matches(haystack: String, day: java.time.LocalDate): Boolean {
     fun matched(words: List<String>) = words.filter { it.isNotBlank() && haystack.contains(it.trim().lowercase()) }
-    val from = extraFrom?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() }
+    fun date(text: String?) = text?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() }
+    val starts = date(offerFrom)
+    val ends = date(offerUntil)
+    if (starts != null && ends != null && !day.isBefore(starts) && !day.isAfter(ends) && matched(offerKeywords).isNotEmpty()) return true
+    val from = date(extraFrom)
     val hits = matched(keywords) + (if (from != null && !day.isBefore(from)) matched(extraKeywords) else emptyList())
     if (hits.isEmpty()) return false
     val excepted = matched(exceptKeywords)
@@ -137,7 +145,13 @@ object RewardCalculator {
         /** Refund id to the (purchase id, amount) pairs the person linked it to. */
         refundLinks: Map<Long, List<Pair<Long, BigDecimal>>> = emptyMap()
     ): List<TransactionReward> {
-        val used = HashMap<Pair<Int, YearMonth>, BigDecimal>() // (rule index, -1 = base) + month -> reward so far
+        // (rule index, -1 = base) + month -> reward so far. For a capped rule it is what was earned before the cap,
+        // so refunds come off that first: a cycle still over its cap after them loses nothing, in whatever order.
+        val used = HashMap<Pair<Int, YearMonth>, BigDecimal>()
+        /** What a capped rule pays when [earned] was earned before its cap: the cap, plus the above-cap rate on the rest. */
+        fun paid(earned: BigDecimal, limit: BigDecimal, rate: BigDecimal, above: BigDecimal): BigDecimal =
+            if (earned <= limit) earned
+            else limit + if (rate.signum() == 0) BigDecimal.ZERO else (earned - limit).multiply(above).divide(rate, 2, RoundingMode.HALF_UP)
         val byId = transactions.associateBy { it.id }
         val done = HashMap<Long, TransactionReward>() // what each transaction earned, so a linked refund can take back its purchase's share
         // Money paid into some other account (say, someone paying back their share) never reached the card, so the
@@ -155,19 +169,34 @@ object RewardCalculator {
             var back = BigDecimal.ZERO
             var label: String? = null
             var rate = BigDecimal.ZERO
+            var counted = false
             for ((expenseId, amount) in links) {
                 val expense = byId[expenseId]?.takeIf { it.belongsTo(program) } ?: continue
-                val earned = done[expenseId]?.takeIf { !it.excluded && it.reward.signum() > 0 && expense.amount.signum() > 0 } ?: continue
-                val share = amount.min(expense.amount).multiply(earned.reward).divide(expense.amount, 2, RoundingMode.HALF_UP)
+                val earned = done[expenseId]?.takeIf { !it.excluded && (it.reward.signum() > 0 || it.capped) && expense.amount.signum() > 0 } ?: continue
+                var share = amount.min(expense.amount).multiply(earned.reward).divide(expense.amount, 2, RoundingMode.HALF_UP)
                 val index = program.rules.indexOfFirst { it.label == earned.ruleLabel }
                 if (index >= 0) {
-                    val slot = index to cycleOf(tx.dateTime.toLocalDate(), capDay(program, cycleDay))
-                    used[slot] = ((used[slot] ?: BigDecimal.ZERO) - share).max(BigDecimal.ZERO)
+                    val day = tx.dateTime.toLocalDate()
+                    val slot = index to cycleOf(day, capDay(program, cycleDay))
+                    val soFar = used[slot] ?: BigDecimal.ZERO
+                    val limit = program.rules[index].capOn(day)?.toBigDecimalOrNull()
+                    if (limit == null) used[slot] = (soFar - share).max(BigDecimal.ZERO)
+                    else {
+                        // In the purchase's own cycle, a purchase the cap trimmed gives back what it earned before the cap.
+                        val sameCycle = cycleOf(expense.dateTime.toLocalDate(), capDay(program, cycleDay)) == slot.second
+                        val before = if (earned.capped && sameCycle) {
+                            amount.min(expense.amount).multiply(earned.ratePercent).divide(HUNDRED, 2, RoundingMode.HALF_UP)
+                        } else share
+                        val above = program.rules[index].aboveCapOn(day)
+                        used[slot] = soFar - before
+                        share = paid(soFar, limit, earned.ratePercent, above) - paid(soFar - before, limit, earned.ratePercent, above)
+                    }
                 }
                 back += share
+                counted = true
                 if (label == null) { label = earned.ruleLabel; rate = earned.ratePercent }
             }
-            if (back.signum() == 0) return TransactionReward(tx, BigDecimal.ZERO, BigDecimal.ZERO, null, excluded = true, capped = false, refund = true)
+            if (!counted) return TransactionReward(tx, BigDecimal.ZERO, BigDecimal.ZERO, null, excluded = true, capped = false, refund = true)
             return TransactionReward(tx, back.negate(), rate, label, excluded = false, capped = false, refund = true)
         }
 
@@ -186,11 +215,20 @@ object RewardCalculator {
                 val refund = tx.transactionType == TransactionType.INCOME
                 val overridden = overrides[tx.id]?.toBigDecimalOrNull()
                 // A reward the statement printed for this very purchase beats any rule (unless the person set a rate).
-                val row = if (overridden == null) reported?.takeRow(tx) else null
+                val keepsStatement = overridden != null && RateChoices.statementKeepsCardPart(program, tx, overridden)
+                val row = if (overridden == null || keepsStatement) reported?.takeRow(tx) else null
                 val printed = row?.let { reported?.reward(it) }
                 if (printed != null) {
-                    val effective = if (tx.amount.signum() == 0) BigDecimal.ZERO else printed.abs().multiply(HUNDRED).divide(tx.amount, 2, RoundingMode.HALF_UP)
-                    return@one TransactionReward(tx, printed, effective, "Statement", excluded = false, capped = false, refund = refund, statementDay = row.statement.takeIf { it > 0 })
+                    // The Neu app's own 5% comes on top, in whole NeuCoins.
+                    val app = if (keepsStatement && RateChoices.includesNeuApp(overridden!!)) {
+                        tx.amount.multiply(RateChoices.NEU_APP_PERCENT).divide(HUNDRED, 0, RoundingMode.DOWN).setScale(2)
+                    } else BigDecimal.ZERO
+                    val total = printed + app
+                    val effective = if (tx.amount.signum() == 0) BigDecimal.ZERO else total.abs().multiply(HUNDRED).divide(tx.amount, 2, RoundingMode.HALF_UP)
+                    return@one TransactionReward(
+                        tx, total, effective, if (app.signum() > 0) "Statement + Neu app 5%" else "Statement",
+                        excluded = false, capped = false, refund = refund, statementDay = row.statement.takeIf { it > 0 }
+                    )
                 }
                 // Fees, taxes and interest never earn a reward on any card.
                 if (FEE_WORDS.any { haystack.contains(it) }) {
@@ -250,26 +288,20 @@ object RewardCalculator {
                     reward = reward.divide(pv, 0, RoundingMode.DOWN).multiply(pv).setScale(2, RoundingMode.HALF_UP)
                 }
                 var capped = false
-                if (refund) {
-                    // The refund takes back what the purchase earned, and frees that room under the cap.
-                    used[slot] = ((used[slot] ?: BigDecimal.ZERO) - reward).max(BigDecimal.ZERO)
-                    reward = reward.negate()
+                val limit = cap?.toBigDecimalOrNull()
+                val soFar = used[slot] ?: BigDecimal.ZERO
+                if (limit == null) {
+                    // A refund takes back what the purchase earned.
+                    if (refund) {
+                        used[slot] = (soFar - reward).max(BigDecimal.ZERO)
+                        reward = reward.negate()
+                    } else used[slot] = soFar + reward
                 } else {
-                    cap?.toBigDecimalOrNull()?.let { limit ->
-                        val soFar = used[slot] ?: BigDecimal.ZERO
-                        val room = (limit - soFar).max(BigDecimal.ZERO)
-                        if (reward > room) {
-                            // The part of the purchase the room covers earns the rule's rate; the rest earns the above-cap rate.
-                            val coveredSpend = if (rate.signum() == 0) BigDecimal.ZERO else room.multiply(HUNDRED).divide(rate, 2, RoundingMode.HALF_UP)
-                            val excessSpend = (tx.amount - coveredSpend).max(BigDecimal.ZERO)
-                            val above = program.rules.getOrNull(index)?.aboveCapOn(tx.dateTime.toLocalDate()) ?: BigDecimal.ZERO
-                            used[slot] = soFar + room
-                            reward = room + excessSpend.multiply(above).divide(HUNDRED, 2, RoundingMode.HALF_UP)
-                            capped = true
-                        } else {
-                            used[slot] = soFar + reward
-                        }
-                    }
+                    val now = if (refund) soFar - reward else soFar + reward
+                    val above = program.rules.getOrNull(index)?.aboveCapOn(day) ?: BigDecimal.ZERO
+                    used[slot] = now
+                    capped = !refund && now > limit
+                    reward = paid(now, limit, rate, above) - paid(soFar, limit, rate, above)
                 }
                 TransactionReward(tx, reward, rate, if (overridden != null) "Your rate" else program.rules.getOrNull(index)?.label, excluded = false, capped = capped, refund = refund)
             }

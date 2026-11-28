@@ -82,6 +82,7 @@ object CardRewardPresets {
      * - From 26 July 2026: shopping, utilities and telecom join the 10%; Amazon, Flipkart and Myntra stay at 1.5% (Amazon
      *   Fresh and Flipkart Minutes keep 10% as groceries); one cap of Rs 1,200 a statement cycle for all of them, and spend past
      *   it earns nothing; international spends and hospital and local-transit spends earn nothing.
+     * - 31 July to 31 October 2026 (an offer): Myntra paid 10% too, within the same cap.
      */
     private fun hsbcLivePlus(bank: String) = CardRewardProgram(
         bankName = bank, cardLast4 = "", name = "HSBC Live+",
@@ -102,7 +103,9 @@ object CardRewardPresets {
                 ),
                 extraFrom = "2026-07-26",
                 exceptKeywords = listOf("amazon", "flipkart", "myntra"),
-                aboveCapPercent = "0", earlierAboveCapPercent = "1.5"
+                aboveCapPercent = "0", earlierAboveCapPercent = "1.5",
+                // Myntra's limited-time offer, which the card owner confirmed.
+                offerKeywords = listOf("myntra"), offerFrom = "2026-07-31", offerUntil = "2026-10-31"
             )
         ),
         excludedKeywords = listOf("fuel", "rent", "wallet"),
